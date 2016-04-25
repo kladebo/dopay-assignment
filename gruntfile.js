@@ -17,6 +17,40 @@ module.exports = function (grunt) {
                 }
             }
         },
+        requirejs: {
+            compile: {
+                options: {
+                    baseUrl: 'work/js',
+                    generateSourceMaps: true,
+                    logLevel: 4,
+                    preserveLicenseComments: false,
+                    optimize: "uglify2",
+                    //                    mainConfigFile: "require.config.js",
+                    //                name: "path/to/almond",
+                    /* assumes a production build using almond, if you don't use almond, you
+                                                    need to set the "includes" or "modules" option instead of name */
+                    include: ['main'],
+                    paths: {
+                        main: 'app/main',
+                        domReady: 'lib/domReady.min',
+                        promise: 'lib/es6-promise.min'
+                    },
+                    out: "build/js/app/main.min.js"
+                }
+            }
+        },
+         uglify: {
+            appjs: {
+                options: {
+                    // mangle: false,
+                    preserveComments: false
+                    //banner: '/*! main <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                },
+                files: {
+                    'build/js/app.min.js': ['work/js/app.js']
+                }
+            }
+        },
         concat: {
             options: {
                 // define a string to put between each file in the concatenated output
@@ -26,7 +60,7 @@ module.exports = function (grunt) {
                 // the files to concatenate
                 src: ['work/js/app/widget-*.js'],
                 // the location of the resulting JS file
-                dest: 'work/build/js/app/<%= pkg.name %>.js'
+                dest: 'build/js/app/<%= pkg.name %>.js'
             }
         },
         sass: {
@@ -36,7 +70,7 @@ module.exports = function (grunt) {
                     style: 'nested' //Output style. Can be nested, compact, compressed, expanded
                 },
                 files: {
-                    'work/build/css/layout.css': 'work/sass/layout.scss'
+                    'build/css/layout.css': 'work/sass/layout.scss'
                 }
             }
         },
@@ -52,13 +86,13 @@ module.exports = function (grunt) {
                 processors: [
                     require('pixrem')(), // add fallbacks for rem units 
                         require('autoprefixer')({
-                        browsers: ['last 2 versions', 'Safari >= 5', '> 3% in NL']
+                        browsers: ['last 2 versions', '> 3% in NL']
                     }), // add vendor prefixes 
                     require('cssnano')() // minify the result 
                 ]
             },
             dist: {
-                src: 'work/build/css/layout.css',
+                src: 'build/css/layout.css',
                 dest: 'work/css/app/layout.min.css'
             }
         },
@@ -69,9 +103,9 @@ module.exports = function (grunt) {
             //subfolders: ['path/to/dir/*/'],
             //css: ['path/to/dir/*.css'],
             //all_css: ['path/to/dir/**/*.css']
-            css: ['work/build/css/', 'work/css/app/', 'www/css/*'],
-            appjs: ['work/build/js/app/', 'www/js/app/', 'www/js/app.js']
-            //all_css: ['path/to/dir/**/*.css']
+            css: ['build/css/', 'work/css/app/', 'www/css/*'],
+            appjs: ['build/js/app/', 'www/js/app/', 'www/js/app.js']
+                //all_css: ['path/to/dir/**/*.css']
         },
         copy: {
             css: {
@@ -82,8 +116,14 @@ module.exports = function (grunt) {
 
             },
             appjs: {
-                cwd: 'work/build/js', // set working folder / root to copy
+                cwd: 'build/js', // set working folder / root to copy
                 src: '**/*', // copy only root files
+                dest: 'www/js', // destination folder
+                expand: true // required when using cwd
+            },
+            requirejs: {
+                cwd: 'work/js', // set working folder / root to copy
+                src: 'require.js', // copy only root files
                 dest: 'www/js', // destination folder
                 expand: true // required when using cwd
             }
@@ -95,17 +135,18 @@ module.exports = function (grunt) {
 
     // npm install grunt-postcss pixrem autoprefixer cssnano --save-dev
 
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-sass'); //npm install grunt-contrib-sass --save-dev
-    grunt.loadNpmTasks('grunt-postcss');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-copy'); //npm install grunt-contrib-copy --save-dev
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks('grunt-contrib-requirejs');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-postcss');
 
     // Default task(s).
-    grunt.registerTask('code', ['jshint', 'connect', 'qunit', 'clean:appjs', 'uglify', 'copy:appjs']);
-    grunt.registerTask('css', ['clean:css', 'less', 'cssmin', 'sass', 'postcss', 'copy:css']);
-    grunt.registerTask('e2e', ['protractor:chrome']);
+    grunt.registerTask('code', ['jshint', 'clean:appjs', 'requirejs','uglify', 'copy:appjs', 'copy:requirejs']);
+    grunt.registerTask('css', ['clean:css', 'sass', 'postcss', 'copy:css']);
     grunt.registerTask('default', ['code', 'css']);
 
 };

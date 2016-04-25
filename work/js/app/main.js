@@ -6,7 +6,7 @@ define(function (require) {
     // with a relative require call,
     // like:
     var print = require('app/print'),
-        helper = require('app/helpers'),
+        helper = require('app/helpers');
 
 
         // Load library/vendor modules using
