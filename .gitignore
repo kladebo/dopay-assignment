@@ -1,0 +1,7 @@
+node_modules
+.sass-cache
+.lnk
+www/*/
+work/build/
+work/css/app/
+zooi/
