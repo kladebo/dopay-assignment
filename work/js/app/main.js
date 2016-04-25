@@ -7,48 +7,19 @@ define(function (require) {
     // like:
     var print = require('app/print'),
         helper = require('app/helpers'),
+        result = require('app/result'),
 
         data;
 
     if (typeof Promise === "undefined" && Promise.toString().indexOf("[native code]") === -1) {
-        print('required a polyfill');
+        // load promise polyfill
         require('promise').polyfill();
     }
 
-    //    require(['domReady!'], function () {
-    //        print('domReady');
-    //    });
-
-
-    helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
-        //console.log("Success!", response);
-        data = response;
-    }, function (error) {
-        console.error("Failed!", error);
-    }).then(function () {
-
-        require(['domReady!'], function () {
-            var frag = document.createDocumentFragment(),
-                div,
-                span,
-                headers = data.headers;
-
-            helper.forEach(data.players, function (player, index) {
-                div = document.createElement('div');
-                frag.appendChild(div);
-                helper.forEach(headers, function (header) {
-                    var item = header.id;
-                    if (player[item]) {
-                        span = document.createElement('span');
-                        span.textContent = player[item];
-                        div.appendChild(span);
-                    }
-
-                });
-            });
-            document.body.appendChild(frag);
-            print('players ready');
-        });
+    require(['domReady!'], function () {
+        print('domReady');
     });
+
+    data = result.getData();
 
 });
