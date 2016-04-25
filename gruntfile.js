@@ -39,12 +39,12 @@ module.exports = function (grunt) {
                 }
             }
         },
-         uglify: {
+        uglify: {
             appjs: {
                 options: {
                     // mangle: false,
                     preserveComments: false
-                    //banner: '/*! main <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                        //banner: '/*! main <%= grunt.template.today("yyyy-mm-dd") %> */\n'
                 },
                 files: {
                     'build/js/app.min.js': ['work/js/app.js']
@@ -126,6 +126,12 @@ module.exports = function (grunt) {
                 src: 'require.js', // copy only root files
                 dest: 'www/js', // destination folder
                 expand: true // required when using cwd
+            },
+            data: {
+                cwd: 'work/data', // set working folder / root to copy
+                src: '**.min.*', // copy only root files
+                dest: 'www/js/data', // destination folder
+                expand: true // required when using cwd
             }
         }
     });
@@ -145,7 +151,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-postcss');
 
     // Default task(s).
-    grunt.registerTask('code', ['jshint', 'clean:appjs', 'requirejs','uglify', 'copy:appjs', 'copy:requirejs']);
+    grunt.registerTask('code', ['jshint', 'clean:appjs', 'requirejs', 'uglify', 'copy:appjs', 'copy:requirejs', 'copy:data']);
     grunt.registerTask('css', ['clean:css', 'sass', 'postcss', 'copy:css']);
     grunt.registerTask('default', ['code', 'css']);
 

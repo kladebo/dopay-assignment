@@ -3,7 +3,6 @@
 define(function (require) {
     'use strict';
 
-    //var Promise = require('promise').Promise;
     var print = require('app/print');
 
     return {
