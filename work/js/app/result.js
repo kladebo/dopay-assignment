@@ -14,58 +14,69 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
             require(['domReady!'], function () {
                 var frag = document.createDocumentFragment(),
+                    collection,
                     div,
                     span,
                     headers = data.headers;
 
-                console.time('klaas');
-                console.time('jan');
-                console.time('piet');
-                for (var p in data.players) {
+                var sub_player = data.players.filter(function (player) {
+                    return player.b >= 1940;
+                });
+                
+                var sub_player2 = data.players.filter(function (player) {
+                    return player.a.indexOf('war') === 0;
+                });
+
+                //                console.time('klaas');
+                //                console.time('jan');
+                //                console.time('piet');
+                //collection = data.players;
+                collection = sub_player2;
+                for (var p in collection) {
                     div = document.createElement('div');
                     frag.appendChild(div);
                     for (var q in headers) {
-                         if (data.players[p].hasOwnProperty(headers[q].id)) {
+                        if (collection[p].hasOwnProperty(headers[q].id)) {
                             span = document.createElement('span');
-                            span.textContent = data.players[p][headers[q].id];
+                            span.textContent = collection[p][headers[q].id];
                             div.appendChild(span);
                         }
                     }
                 }
-                console.timeEnd('klaas');
+                //                console.timeEnd('klaas');
+                //
+                //                for (var player, i = 0, x = data.players.length; i < x; i++) {
+                //                    div = document.createElement('div');
+                //                    frag.appendChild(div);
+                //
+                //                    player = data.players[i];
+                //                    for (var item, j = 0, y = headers.length; j < y; j++) {
+                //                        item = headers[j].id;
+                //                        if (player.hasOwnProperty(item)) {
+                //                            span = document.createElement('span');
+                //                            span.textContent = player[item];
+                //                            div.appendChild(span);
+                //                        }
+                //                    }
+                //                }
+                //                console.timeEnd('jan');
+                //
+                //                helper.forEach(data.players, function (player, index) {
+                //                    div = document.createElement('div');
+                //                    frag.appendChild(div);
+                //                    helper.forEach(headers, function (header) {
+                //                        var item = header.id;
+                //                        if (player.hasOwnProperty(item)) {
+                //                            span = document.createElement('span');
+                //                            span.textContent = player[item];
+                //                            div.appendChild(span);
+                //                        }
+                //
+                //                    });
+                //                });
+                //                console.timeEnd('piet');
 
-                for (var player, i = 0, x = data.players.length; i < x; i++) {
-                    div = document.createElement('div');
-                    frag.appendChild(div);
 
-                    player = data.players[i];
-                    for (var item, j = 0, y = headers.length; j < y; j++) {
-                        item = headers[j].id;
-                        if (player.hasOwnProperty(item)) {
-                            span = document.createElement('span');
-                            span.textContent = player[item];
-                            div.appendChild(span);
-                        }
-                    }
-                }
-                console.timeEnd('jan');
-
-                helper.forEach(data.players, function (player, index) {
-                    div = document.createElement('div');
-                    frag.appendChild(div);
-                    helper.forEach(headers, function (header) {
-                        var item = header.id;
-                        if (player.hasOwnProperty(item)) {
-                            span = document.createElement('span');
-                            span.textContent = player[item];
-                            div.appendChild(span);
-                        }
-
-                    });
-                });
-                console.timeEnd('piet');
-
-                
                 document.body.appendChild(frag);
                 print('players ready');
             });

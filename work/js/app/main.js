@@ -7,6 +7,7 @@ define(function (require) {
     // like:
     var print = require('app/print'),
         helper = require('app/helpers'),
+        search = require('app/search'),
         result = require('app/result'),
 
         data;
@@ -18,6 +19,8 @@ define(function (require) {
 
     require(['domReady!'], function () {
         print('domReady');
+        
+        document.body.appendChild(search.createForm());
     });
 
     data = result.getData();
