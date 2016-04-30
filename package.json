@@ -2,14 +2,17 @@
     "name": "dopay",
     "version": "0.0.1",
     "description": "dopay assignment",
-    "main": "app.js",
     "keywords": [
-    "assignment", "require.js"
-  ],
+        "assignment", "require.js"
+    ],
     "author": {
         "name": "Klaas de Boer",
         "email": "kladebo@xs4all.nl",
         "url": "http://kladebo.home.xs4all.nl"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kladebo/dopay-assignment.git"
     },
     "license": "ISC",
     "devDependencies": {
