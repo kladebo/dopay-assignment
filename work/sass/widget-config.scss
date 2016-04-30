@@ -1,0 +1,40 @@
+/*------------------------------------*\
+    #SECTION-WIDGET-CONFIG
+\*------------------------------------*/
+
+@import 'config';
+
+/* ==========================================================================
+   Mixins for the widgets: w-select, w-input
+   ========================================================================== */
+
+$widget-border-color: #1f7dac;
+$widget-border-specs: .1em solid $widget-border-color;
+$widget-dropdown-bgcolor: #fff;
+$widget-active-color: #fff;
+$widget-focus-color: #29B0F4;
+//$widget-disabled-color: rgba($app-primary-black, .2);
+$widget-backgound: linear-gradient(#ffffff, #F6F6F6);
+
+/* ==========================================================================
+   Mixins for the widgets: w-select, w-input
+   ========================================================================== */
+
+@mixin widget-base() {
+    background: $widget-backgound;
+    border: $widget-border-specs;
+    border-radius: .2em;
+    box-shadow: .1em .1em .2em 0 #EDEDED;
+    box-sizing: border-box;
+    display: inline-block;
+    margin-right: .1em;
+    margin-bottom: .25em;
+    position: relative;
+    text-align: left;
+    vertical-align: top;
+}
+@mixin widget-focus() {
+    background: $widget-active-color;
+    border-color: $widget-focus-color;
+    box-shadow: .1em .1em .3em 0 rgba($widget-focus-color, .6);
+}

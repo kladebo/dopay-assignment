@@ -1,0 +1,37 @@
+/*------------------------------------*\
+    #SECTION-WIDGET-INPUT
+\*------------------------------------*/
+
+@import 'config';
+@import 'widget-config';
+
+/* ==========================================================================
+   Base-settings:
+   ========================================================================== */
+
+.w-input {
+    @include widget-base;
+    input {
+        background-color: transparent;
+        border: 0;
+        padding: .6em;
+        width: 100%;
+    }
+}
+
+/*
+ * Widget's modifiers
+ */
+
+.w-input--focus {
+    @include widget-focus;
+}
+
+/*
+ * HTML input type=text
+ */
+
+.w-input__input:focus {
+    /* removes blue line on chrome */
+    outline: none;
+}
