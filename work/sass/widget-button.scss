@@ -1,0 +1,30 @@
+/*------------------------------------*\
+    #SECTION-WIDGET-BUTTON
+\*------------------------------------*/
+
+@import 'config';
+@import 'widget-config';
+
+/* ==========================================================================
+   Base-settings:
+   ========================================================================== */
+
+.w-button {
+    background: $widget-backgound;
+    border: $widget-border-specs;
+    border-radius: .2em;
+    box-shadow: $widget-box-shadow-specs;
+    color: $app-text-color;
+    margin-right: .25em;
+    margin-bottom: .25em;
+    padding: .6em .9em;
+}
+
+/*
+ * Button modifiers
+ */
+
+.w-input--submit {
+    background: transparent;
+    border-color: transparent;
+}

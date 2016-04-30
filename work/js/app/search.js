@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/widget-input'], function (print, helper, wInput) {
+define(['app/print', 'app/helpers', 'app/widget-input', 'app/widget-button'], function (print, helper, wInput, wButton) {
     'use strict';
 
     var createForm;
@@ -7,7 +7,8 @@ define(['app/print', 'app/helpers', 'app/widget-input'], function (print, helper
     createForm = function () {
         var frag = document.createDocumentFragment(),
             formWrapper = document.createElement('div'),
-            nameInput;
+            nameInput,
+            searchButton;
 
         frag.appendChild(formWrapper);
         formWrapper.className = 'w-form';
@@ -18,6 +19,9 @@ define(['app/print', 'app/helpers', 'app/widget-input'], function (print, helper
         nameInput.addEventListener('keyup', function () {
             print(nameInput.querySelector('input.w-input__input').value);
         });
+        
+        searchButton = wButton.create({text:'find!'});
+        formWrapper.appendChild(searchButton);
 
         return frag;
     };
