@@ -13,7 +13,6 @@ define(function (require) {
 
         get: function (url) {
             // Return a new promise.
-            print(typeof Promise);
             return new Promise(function (resolve, reject) {
                 // Do the usual XHR stuff
                 var req = new XMLHttpRequest();

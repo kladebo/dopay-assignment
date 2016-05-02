@@ -9,7 +9,7 @@
    ========================================================================== */
 
 .w-result {
-    border: .1em solid red;
+    border: .1em solid green;
     padding: 2em;
 }
 
@@ -17,10 +17,47 @@
  * HTML input type=text
  */
 
-.w-result__header {
-    
+.w-result__header {}
+.w-result__body {}
+
+/* ==========================================================================
+   HTML Table:
+   ========================================================================== */
+
+.w-result__table {
+    border: .1em solid $app-accent-color01;
+    border-collapse: collapse;
 }
 
-.w-result__body {
-    
+/* ==========================================================================
+   HTML Table header:
+   ========================================================================== */
+
+.w-result__header-row {
+    background: $app-accent-color01;
+}
+.w-result__header-cell {
+    font-weight: bold;
+    padding: .2em 1em;
+    color: $app-primary-white;
+}
+
+/*
+ * Modifiers
+ */
+
+.w-result__header-cell--sort {
+    color: $app-accent-color02;
+}
+
+/* ==========================================================================
+   HTML Table body:
+   ========================================================================== */
+
+.w-result__row {}
+.w-result__row:nth-child(odd) {
+    background: #efefef;
+}
+.w-result__cell {
+    padding: .2em 1em;
 }

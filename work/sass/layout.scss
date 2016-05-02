@@ -10,6 +10,7 @@
 
 body {
     color: $app-text-color;
+    font-family: "Noto Sans";
     font-size: 1em;
 }
 div {
@@ -27,5 +28,6 @@ div {
    ========================================================================== */
 
 @import 'search';
+@import 'result';
 @import 'widget-input';
 @import 'widget-button';

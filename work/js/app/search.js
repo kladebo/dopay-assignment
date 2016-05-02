@@ -18,15 +18,16 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         formWrapper.appendChild(nameInput);
 
         nameInput.addEventListener('keyup', function () {
-            //print(nameInput.querySelector('input.w-input__input').value);
-            //print(aResult.filterDataByName(nameInput.querySelector('input.w-input__input').value));
             var value = nameInput.querySelector('input.w-input__input').value;
+            
             clearTimeout(myTime);
 
             if (value !== '') {
                 myTime = setTimeout(function () {
                     aResult.createView(aResult.filterDataByName(value));
                 }, 500);
+            }else {
+                aResult.createView({});
             }
         });
 
