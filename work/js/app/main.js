@@ -8,9 +8,8 @@ define(function (require) {
     var print = require('app/print'),
         helper = require('app/helpers'),
         search = require('app/search'),
-        result = require('app/result'),
+        result = require('app/result');
 
-        data;
 
     if (typeof Promise === "undefined" && Promise.toString().indexOf("[native code]") === -1) {
         // load promise polyfill
@@ -21,8 +20,9 @@ define(function (require) {
         print('domReady');
         
         document.body.appendChild(search.createForm());
+        result.initView();
     });
 
-    data = result.getData();
+    result.getData();
 
 });

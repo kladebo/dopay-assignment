@@ -47,6 +47,23 @@ define(function (require) {
                 console.log("getJSON failed for", url, err);
                 throw err;
             });
+        },
+
+        sortData: function (collection, field) {
+            var sortField = field || 'a';
+            collection.sort(function (a, b) {
+                //print(a.a < b.a);
+                var valueA,
+                    valueB;
+
+                valueA = a[sortField] || '';
+                valueB = b[sortField] || '';
+
+                if (valueA < valueB) return -1;
+                if (valueA > valueB) return 1;
+                return 0;
+            });
+            return collection;
         }
     };
 
