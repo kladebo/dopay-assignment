@@ -95,7 +95,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         helper.forEach(tr.querySelectorAll('td'), function (th) {
             th.addEventListener('click', function () {
                 var sortfield = th.getAttribute('data-id'),
-                    data = sortData(resultObj.viewdata, {field:sortfield});
+                    data = sortData(resultObj.viewdata, {
+                        field: sortfield
+                    });
                 createView(data);
             });
         });
@@ -153,10 +155,14 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         }
     };
 
-    filterDataByName = function (arg) {
+    filterDataByName = function (arg, wildcard) {
 
         var data = resultObj.data.players().filter(function (player) {
-            return player.a.indexOf(arg) === 0;
+            if (wildcard) {
+                return player.a.indexOf(arg) >= 0;
+            } else {
+                return player.a.indexOf(arg) === 0;
+            }
         });
         return data;
     };
@@ -191,13 +197,13 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     sortData = function (data, sortObj) {
 
-        
+
         if (sortObj.field === resultObj.sortField && !sortObj.order) {
             data.reverse();
         } else {
             resultObj.sortField = sortObj.field || 'a';
             data = helper.sortData(data, resultObj.sortField);
-            if(sortObj.order === 'd'){
+            if (sortObj.order === 'd') {
                 data.reverse();
             }
         }

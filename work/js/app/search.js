@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button'], function (print, helper, aResult, wInput, wButton) {
+define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox'], function (print, helper, aResult, wInput, wButton, wCheckbox) {
     'use strict';
 
     var createForm,
@@ -9,7 +9,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         var frag = document.createDocumentFragment(),
             formWrapper = document.createElement('div'),
             nameInput,
-            searchButton;
+            searchButton,
+            wildcardCheckbox;
 
         frag.appendChild(formWrapper);
         formWrapper.className = 'w-form';
@@ -24,7 +25,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
             if (value !== '') {
                 myTime = setTimeout(function () {
-                    aResult.createView(aResult.sortData(aResult.filterDataByName(value), {
+                    aResult.createView(aResult.sortData(aResult.filterDataByName(value, wildcardCheckbox.checked), {
                         field: 'a',
                         order: 'a'
                     }));
@@ -32,6 +33,16 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             } else {
                 aResult.createView({});
             }
+        });
+
+        wildcardCheckbox = wCheckbox.create();
+        formWrapper.appendChild(wildcardCheckbox);
+        wildcardCheckbox.addEventListener('click', function () {
+            var value = nameInput.querySelector('input.w-input__input').value;
+            aResult.createView(aResult.sortData(aResult.filterDataByName(value, wildcardCheckbox.checked), {
+                field: 'a',
+                order: 'a'
+            }));
         });
 
         searchButton = wButton.create({
