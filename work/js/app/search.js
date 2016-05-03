@@ -19,14 +19,17 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         nameInput.addEventListener('keyup', function () {
             var value = nameInput.querySelector('input.w-input__input').value;
-            
+
             clearTimeout(myTime);
 
             if (value !== '') {
                 myTime = setTimeout(function () {
-                    aResult.createView(aResult.filterDataByName(value));
+                    aResult.createView(aResult.sortData(aResult.filterDataByName(value), {
+                        field: 'a',
+                        order: 'a'
+                    }));
                 }, 500);
-            }else {
+            } else {
                 aResult.createView({});
             }
         });

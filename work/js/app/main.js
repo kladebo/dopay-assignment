@@ -19,8 +19,8 @@ define(function (require) {
     require(['domReady!'], function () {
         print('domReady');
         
-        document.body.appendChild(search.createForm());
-        result.initView();
+        //document.body.appendChild(search.createForm());
+        //result.initView();
     });
 
     result.getData();
