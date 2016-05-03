@@ -4,6 +4,31 @@ define(function (require) {
     'use strict';
 
     var print = require('app/print');
+    /*
+     * http://stackoverflow.com/questions/11246758/how-to-get-unique-values-in-an-array
+     *   var duplicates = [1,3,4,2,1,2,3,8];
+     *   var uniques = duplicates.unique(); // result = [1,3,4,2,8]
+     */
+    Array.prototype.contains = function (v) {
+        var i, j;
+        for (i = 0, j = this.length; i < j; i += 1) {
+            if (this[i] === v) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    Array.prototype.unique = function () {
+        var arr = [],
+            i, j;
+        for (i = 0, j = this.length; i < j; i += 1) {
+            if (!arr.contains(this[i])) {
+                arr.push(this[i]);
+            }
+        }
+        return arr;
+    };
 
     return {
         forEach: function (ctn, callback) {
@@ -58,8 +83,12 @@ define(function (require) {
                 valueA = a[sortField] || '';
                 valueB = b[sortField] || '';
 
-                if (valueA < valueB) return -1;
-                if (valueA > valueB) return 1;
+                if (valueA < valueB) {
+                    return -1;
+                }
+                if (valueA > valueB) {
+                    return 1;
+                }
                 return 0;
             });
             return collection;

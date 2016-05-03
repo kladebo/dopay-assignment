@@ -172,10 +172,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
             //console.log("Success!", response);
             origData = response;
-            require(['app/search'], function (search) {
-                document.body.appendChild(search.createForm());
-                initView();
-            });
+
 
             resultObj = resultObj || {};
             resultObj.totalItems = origData.players.length;
@@ -188,6 +185,40 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             resultObj.data.players = function () {
                 return resultObj.data.data.players;
             };
+            resultObj.data.list_teamID = resultObj.data.players().map(function (player) {
+                if (player.e) {
+                    return player.e;
+                }
+            }).unique().sort();
+            resultObj.data.list_lgID = resultObj.data.players().map(function (player) {
+                    return player.f;
+            }).unique().sort(function (a, b) {
+                return a - b;
+            });
+            resultObj.data.list_GP = resultObj.data.players().map(function (player) {
+                    return player.g;
+            }).unique().sort(function (a, b) {
+                return a - b;
+            });
+            resultObj.data.list_startingPos = resultObj.data.players().map(function (player) {
+                return player.h;
+
+            }).unique().sort(function (a, b) {
+                return a - b;
+            });
+            resultObj.data.list_yearID = resultObj.data.players().map(function (player) {
+                return player.b;
+
+            }).unique().sort(function (a, b) {
+                return a - b;
+            });
+
+            require(['app/search'], function (search) {
+                document.body.appendChild(search.createForm());
+                initView();
+            });
+            
+            print(resultObj.data);
 
 
         }, function (error) {
@@ -196,7 +227,6 @@ define(['app/print', 'app/helpers'], function (print, helper) {
     };
 
     sortData = function (data, sortObj) {
-
 
         if (sortObj.field === resultObj.sortField && !sortObj.order) {
             data.reverse();
