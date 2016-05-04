@@ -77,16 +77,26 @@ define(function (require) {
         byInt: function (a, b) {
             return a - b;
         },
-        
-        sortData: function (collection, field) {
-            var sortField = field || 'a';
+
+        //        byString: function (a, b) {
+        //            if (a < b) {
+        //                return -1;
+        //            }
+        //            if (a > b) {
+        //                return 1;
+        //            }
+        //            return 0;
+        //        },
+
+        sortData: function (collection, sortfield) {
+            var field = sortfield || 'a';
             collection.sort(function (a, b) {
                 //print(a.a < b.a);
                 var valueA,
                     valueB;
 
-                valueA = a[sortField] || '';
-                valueB = b[sortField] || '';
+                valueA = (typeof a[field] !== 'undefined') ? a[field] : -1;
+                valueB = (typeof b[field] !== 'undefined') ? b[field] : -1;
 
                 if (valueA < valueB) {
                     return -1;
@@ -96,6 +106,7 @@ define(function (require) {
                 }
                 return 0;
             });
+
             return collection;
         }
     };
