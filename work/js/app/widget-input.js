@@ -15,6 +15,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         input.id = specs.id || '';
         input.type = 'text';
         input.className = 'w-input__input';
+        input.setAttribute('placeholder', specs.placeholder || '');
         input.setAttribute('autocomplete', 'off');
         
 

@@ -100,11 +100,16 @@ define(function (require) {
 
                 if (valueA < valueB) {
                     return -1;
-                }
-                if (valueA > valueB) {
+                } else if (valueA > valueB) {
                     return 1;
+                } else {
+                    /* double sort on field a */
+                    if(sortfield && sortfield !== 'a'){
+                        return (a.a.localeCompare(b.a));
+                    }
+                    return 0;
                 }
-                return 0;
+
             });
 
             return collection;

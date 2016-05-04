@@ -18,7 +18,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         formWrapper.className = 'w-form';
 
         nameInput = wInput.createInput({
-            id: 'playerID'
+            id: 'playerID',
+            placeholder: 'playerID'
         });
         formWrapper.appendChild(nameInput);
 
@@ -42,7 +43,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         });
 
         yearInput = wInput.createInput({
-            id: 'yearID'
+            id: 'yearID',
+            placeholder: 'yearID'
         });
         formWrapper.appendChild(yearInput);
 
