@@ -218,6 +218,13 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
                 }).unique().sort(helper.byInt);
 
+                /* list gameIDs */
+                resultObj.data.list_gameID = resultObj.data.players().filter(function (player) {
+                    return player.hasOwnProperty('d');
+                }).map(function (player) {
+                    return player.d;
+                }).unique().sort(helper.byInt);
+                
                 /* list lgIDs */
                 resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('f');

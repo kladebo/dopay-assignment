@@ -103,9 +103,13 @@ define(function (require) {
                 } else if (valueA > valueB) {
                     return 1;
                 } else {
-                    /* double sort on field a */
+                    
                     if(sortfield && sortfield !== 'a'){
+                        /* double sort by field 'a:playerID' when not sorted by field 'a' */
                         return (a.a.localeCompare(b.a));
+                    } else if(sortfield && sortfield === 'a'){
+                        /* double sort by field 'e:teamID' when sorted by field 'a' */
+                        return (a.e.localeCompare(b.e));
                     }
                     return 0;
                 }
