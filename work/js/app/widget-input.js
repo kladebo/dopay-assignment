@@ -3,7 +3,7 @@
 define(['app/print', 'app/helpers'], function (print, helper) {
     'use strict';
 
-    var createInput = function (item) {
+    var createInput = function (specs) {
         var div = document.createElement('div'),
             input = document.createElement('input'),
             id = document.getElementsByName('w-input').length;
@@ -12,9 +12,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         div.setAttribute('name', 'w-input');
         div.appendChild(input);
 
+        input.id = specs.id || '';
         input.type = 'text';
         input.className = 'w-input__input';
         input.setAttribute('autocomplete', 'off');
+        
+
         /*
          * Event-handling
          */

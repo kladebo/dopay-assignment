@@ -12,7 +12,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         createTableData,
         getData,
         sortData,
-        filterDataByName;
+        filterDataByName,
+        filterDataByYear;
 
     initView = function () {
         var frag = document.createDocumentFragment(),
@@ -50,7 +51,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         wrapper.className = 'w-result__paging-info';
 
         text = text.replace('#0#', data.length);
-        text = text.replace('#1#', resultObj.totalItems);
+        text = text.replace('#1#', resultObj.totalItems());
         wrapper.appendChild(document.createTextNode(text));
 
         return frag;
@@ -155,9 +156,11 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         }
     };
 
-    filterDataByName = function (arg, wildcard) {
+    filterDataByName = function (collection, arg) {
+        var wildcard = document.getElementById('playerID_contains').checked,
+            data;
 
-        var data = resultObj.data.players().filter(function (player) {
+        data = collection.filter(function (player) {
             if (wildcard) {
                 return player.a.indexOf(arg) >= 0;
             } else {
@@ -167,75 +170,88 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         return data;
     };
 
+    filterDataByYear = function (collection, arg) {
+        var data = collection.filter(function (player) {
+            return player.b.toString().indexOf(arg) === 0;
+        });
+        return data;
+    };
+
     getData = function () {
 
-        helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
-            //console.log("Success!", response);
-            origData = response;
+        resultObj = resultObj || {};
+
+        if (resultObj.data) {
+            return resultObj;
+        } else {
+            helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
+                //console.log("Success!", response);
+                origData = response;
+
+                resultObj.totalItems = function () {
+                    return origData.players.length;
+                };
+
+                resultObj.data = {};
+                resultObj.data.data = response;
+                resultObj.data.headers = function () {
+                    return resultObj.data.data.headers;
+                };
+                resultObj.data.players = function () {
+                    return resultObj.data.data.players;
+                };
+
+                /* list teamIDs */
+                resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
+                    return player.hasOwnProperty('e');
+                }).map(function (player) {
+                    if (player.e) {
+                        return player.e;
+                    }
+                }).unique().sort();
+
+                /* list yearIDs */
+                resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
+                    return player.hasOwnProperty('b');
+                }).map(function (player) {
+                    return player.b;
+
+                }).unique().sort(helper.byInt);
+
+                /* list lgIDs */
+                resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
+                    return player.hasOwnProperty('f');
+                }).map(function (player) {
+                    return player.f;
+                }).unique().sort(helper.byInt);
+
+                /* list GPs */
+                resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
+                    return player.hasOwnProperty('g');
+                }).map(function (player) {
+                    return player.g;
+                }).unique().sort(helper.byInt);
+
+                /* list startingPoss */
+                resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
+                    return player.hasOwnProperty('h');
+                }).map(function (player) {
+                    return player.h;
+
+                }).unique().sort(helper.byInt);
+
+                require(['app/search'], function (search) {
+                    document.body.appendChild(search.createForm());
+                    initView();
+                });
+
+                print(resultObj.data);
 
 
-            resultObj = resultObj || {};
-            resultObj.totalItems = origData.players.length;
-
-            resultObj.data = {};
-            resultObj.data.data = response;
-            resultObj.data.headers = function () {
-                return resultObj.data.data.headers;
-            };
-            resultObj.data.players = function () {
-                return resultObj.data.data.players;
-            };
-
-            /* list teamIDs */
-            resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
-                return player.hasOwnProperty('e');
-            }).map(function (player) {
-                if (player.e) {
-                    return player.e;
-                }
-            }).unique().sort();
-
-            /* list yearIDs */
-            resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
-                return player.hasOwnProperty('b');
-            }).map(function (player) {
-                return player.b;
-
-            }).unique().sort(helper.byInt);
-
-            /* list lgIDs */
-            resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
-                return player.hasOwnProperty('f');
-            }).map(function (player) {
-                return player.f;
-            }).unique().sort(helper.byInt);
-
-            /* list GPs */
-            resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
-                return player.hasOwnProperty('g');
-            }).map(function (player) {
-                return player.g;
-            }).unique().sort(helper.byInt);
-
-            /* list startingPoss */
-            resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
-                return player.hasOwnProperty('h');
-            }).map(function (player) {
-                return player.h;
-
-            }).unique().sort(helper.byInt);
-
-            require(['app/search'], function (search) {
-                document.body.appendChild(search.createForm());
-                initView();
+            }, function (error) {
+                console.error("Failed!", error);
             });
-
-            print(resultObj.data);
-
-
-        }, function (error) {
-            console.error("Failed!", error);
-        });
+        }
     };
 
     sortData = function (data, sortObj) {
@@ -258,6 +274,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         initView: initView,
         createView: createView,
         filterDataByName: filterDataByName,
+        filterDataByYear: filterDataByYear,
         sortData: sortData
     };
 });
