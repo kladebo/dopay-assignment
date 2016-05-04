@@ -31,6 +31,7 @@ define(function (require) {
     };
 
     return {
+
         forEach: function (ctn, callback) {
             return Array.prototype.forEach.call(ctn, callback);
         },
@@ -73,6 +74,10 @@ define(function (require) {
             });
         },
 
+        byInt: function (a, b) {
+            return a - b;
+        },
+        
         sortData: function (collection, field) {
             var sortField = field || 'a';
             collection.sort(function (a, b) {

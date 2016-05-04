@@ -185,39 +185,51 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             resultObj.data.players = function () {
                 return resultObj.data.data.players;
             };
-            resultObj.data.list_teamID = resultObj.data.players().map(function (player) {
+
+            /* list teamIDs */
+            resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
+                return player.hasOwnProperty('e');
+            }).map(function (player) {
                 if (player.e) {
                     return player.e;
                 }
             }).unique().sort();
-            resultObj.data.list_lgID = resultObj.data.players().map(function (player) {
-                    return player.f;
-            }).unique().sort(function (a, b) {
-                return a - b;
-            });
-            resultObj.data.list_GP = resultObj.data.players().map(function (player) {
-                    return player.g;
-            }).unique().sort(function (a, b) {
-                return a - b;
-            });
-            resultObj.data.list_startingPos = resultObj.data.players().map(function (player) {
-                return player.h;
 
-            }).unique().sort(function (a, b) {
-                return a - b;
-            });
-            resultObj.data.list_yearID = resultObj.data.players().map(function (player) {
+            /* list yearIDs */
+            resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
+                return player.hasOwnProperty('b');
+            }).map(function (player) {
                 return player.b;
 
-            }).unique().sort(function (a, b) {
-                return a - b;
-            });
+            }).unique().sort(helper.byInt);
+
+            /* list lgIDs */
+            resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
+                return player.hasOwnProperty('f');
+            }).map(function (player) {
+                return player.f;
+            }).unique().sort(helper.byInt);
+
+            /* list GPs */
+            resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
+                return player.hasOwnProperty('g');
+            }).map(function (player) {
+                return player.g;
+            }).unique().sort(helper.byInt);
+
+            /* list startingPoss */
+            resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
+                return player.hasOwnProperty('h');
+            }).map(function (player) {
+                return player.h;
+
+            }).unique().sort(helper.byInt);
 
             require(['app/search'], function (search) {
                 document.body.appendChild(search.createForm());
                 initView();
             });
-            
+
             print(resultObj.data);
 
 
