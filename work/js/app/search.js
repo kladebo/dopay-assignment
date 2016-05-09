@@ -17,6 +17,9 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         frag.appendChild(formWrapper);
         formWrapper.className = 'w-form';
 
+        /*
+         *  name input-field
+         */
         nameInput = wInput.createInput({
             id: 'playerID',
             placeholder: 'playerID'
@@ -33,6 +36,9 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         });
 
+        /*
+         *  checkbox toggles between name input-field starts/contains
+         */
         wildcardCheckbox = wCheckbox.create({
             id: 'playerID_contains',
             label: 'contains value'
@@ -42,6 +48,9 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             //submitForm();
         });
 
+        /*
+         *  year input-field
+         */
         yearInput = wInput.createInput({
             id: 'yearID',
             placeholder: 'yearID'
@@ -58,6 +67,9 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         });
 
+        /*
+         *  submit-button
+         */
         searchButton = wButton.create({
             text: 'find!'
         });
@@ -76,7 +88,9 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             playerID_value = document.getElementById('playerID').value,
             yearID_value = document.getElementById('yearID').value;
 
-
+        /*
+         *  depending on input different sort-fields
+         */
         if (playerID_value !== '') {
             data = aResult.filterDataByName(data, playerID_value);
             sortfield = 'a';
@@ -88,16 +102,15 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         }
 
         /*
-         * Submit ONLY when there is a active-filter
+         * Submit ONLY when there is an active-filter
          */
-        print(data.length +' - - '+ aResult.getData().totalItems());
+        aResult.createView({});
+        
         if (data.length !== aResult.getData().totalItems()) {
             aResult.createView(aResult.sortData(data, {
                 field: sortfield,
                 order: 'a'
             }));
-        } else {
-            aResult.createView({});
         }
     };
 

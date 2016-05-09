@@ -149,7 +149,6 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         wResultBody.innerHTML = '';
 
         if (data.length) {
-
             /* fill wrappers */
             wResultHeader.appendChild(createViewHeader(data));
             wResultBody.appendChild(createTable(data));
@@ -162,9 +161,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         data = collection.filter(function (player) {
             if (wildcard) {
-                return player.a.indexOf(arg) >= 0;
+                return player.a.toLowerCase().indexOf(arg.toLowerCase()) >= 0;
             } else {
-                return player.a.indexOf(arg) === 0;
+                return player.a.toLowerCase().indexOf(arg.toLowerCase()) === 0;
             }
         });
         return data;
@@ -172,7 +171,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     filterDataByYear = function (collection, arg) {
         var data = collection.filter(function (player) {
-            return player.b.toString().indexOf(arg) === 0;
+            return player.b.toString().indexOf(arg) >= 0;
         });
         return data;
     };
@@ -252,8 +251,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                     initView();
                 });
 
-                print(resultObj.data);
-
+                print('data inited: '+resultObj.data);
 
             }, function (error) {
                 console.error("Failed!", error);

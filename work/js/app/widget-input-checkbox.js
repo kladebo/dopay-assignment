@@ -29,6 +29,13 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         } else {
             div.appendChild(checkbox);
         }
+
+        /* 
+         *  html checkbox steels focus on win not mac
+         */
+        checkbox.addEventListener('mousedown', function (event) {
+            event.preventDefault();
+        });
         return div;
     };
 
