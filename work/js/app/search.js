@@ -71,7 +71,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  submit-button
          */
         searchButton = wButton.create({
-            text: 'find!'
+            text: 'find!',
+            css: 'w-button--submit'
         });
         formWrapper.appendChild(searchButton);
 

@@ -9,7 +9,7 @@
    ========================================================================== */
 
 .w-result {
-    border: .1em solid green;
+//    border: .1em solid green;
     padding: 2em;
 }
 
@@ -56,7 +56,7 @@
 
 .w-result__row {}
 .w-result__row:nth-child(odd) {
-    background: #efefef;
+    background: $app-accent-color-bg01;
 }
 .w-result__cell {
     padding: .2em 1em;

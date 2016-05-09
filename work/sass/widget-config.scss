@@ -10,6 +10,7 @@
 
 $widget-border-color: $app-accent-color01;
 $widget-border-specs: .1em solid $widget-border-color;
+$widget-border-radius: .3em;
 $widget-dropdown-bgcolor: #fff;
 $widget-active-color: #fff;
 $widget-focus-color: #29B0F4;
@@ -24,7 +25,7 @@ $widget-backgound: linear-gradient(#ffffff, #F6F6F6);
 @mixin widget-base() {
     background: $widget-backgound;
     border: $widget-border-specs;
-    border-radius: .2em;
+    border-radius: $widget-border-radius;
     box-shadow: $widget-box-shadow-specs;
     box-sizing: border-box;
     display: inline-block;

@@ -8,6 +8,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             text = specs.text || 'button';
 
         button.className = 'w-button';
+        if(specs.css){
+            button.className += ' '+specs.css;
+        }
         button.textContent = text;
 
         return button;

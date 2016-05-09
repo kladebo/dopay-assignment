@@ -12,7 +12,7 @@
 .w-button {
     background: $widget-backgound;
     border: $widget-border-specs;
-    border-radius: .2em;
+    border-radius: $widget-border-radius;
     box-shadow: $widget-box-shadow-specs;
     color: $app-text-color;
     margin-right: .25em;
@@ -24,7 +24,8 @@
  * Button modifiers
  */
 
-.w-input--submit {
-    background: transparent;
-    border-color: transparent;
+.w-button--submit {
+    color: white;
+    background: $app-accent-color01;
+    border-color: $app-accent-color01;
 }

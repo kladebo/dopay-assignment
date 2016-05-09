@@ -9,6 +9,7 @@
    ========================================================================== */
 
 .w-form {
-    border: .1em solid red;
+    border-bottom: .1em solid $app-border-color;
     padding: 2em;
+    background: $app-accent-color-bg01;
 }

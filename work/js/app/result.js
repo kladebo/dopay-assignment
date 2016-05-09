@@ -276,7 +276,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     return {
         getData: getData,
-        initView: initView,
+        //initView: initView,
         createView: createView,
         filterDataByName: filterDataByName,
         filterDataByYear: filterDataByYear,
