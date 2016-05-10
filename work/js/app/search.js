@@ -11,6 +11,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             formWrapper = document.createElement('div'),
             nameInput,
             yearInput,
+            gameInput,
             searchButton,
             wildcardCheckbox;
 
@@ -66,6 +67,25 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             }, 600);
 
         });
+        
+        /*
+         *  game input-field
+         */
+        gameInput = wInput.createInput({
+            id: 'gameID',
+            placeholder: 'gameID'
+        });
+        formWrapper.appendChild(gameInput);
+
+        gameInput.addEventListener('keyup', function () {
+
+            clearTimeout(myTime);
+
+            myTime = setTimeout(function () {
+                submitForm();
+            }, 600);
+
+        });
 
         /*
          *  submit-button
@@ -87,7 +107,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         var data = aResult.getData().data.players(),
             sortfield,
             playerID_value = document.getElementById('playerID').value,
-            yearID_value = document.getElementById('yearID').value;
+            yearID_value = document.getElementById('yearID').value,
+            gameID_value = document.getElementById('gameID').value;
 
         /*
          *  depending on input different sort-fields
@@ -101,6 +122,11 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             data = aResult.filterDataByYear(data, yearID_value);
             sortfield = 'b';
         }
+        
+        if (gameID_value !== '') {
+            data = aResult.filterDataByGame(data, gameID_value);
+            //sortfield = 'd';
+        }
 
         /*
          * Submit ONLY when there is an active-filter
@@ -112,6 +138,14 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
                 field: sortfield,
                 order: 'a'
             }));
+
+            if (playerID_value !== '') {
+                aResult.highlightData(playerID_value, document.querySelectorAll('td.w-result__cell--a'));
+            }
+            
+            if (gameID_value !== '') {
+                aResult.highlightData(gameID_value, document.querySelectorAll('td.w-result__cell--d'));
+            }
         }
     };
 

@@ -61,3 +61,8 @@
 .w-result__cell {
     padding: .2em 1em;
 }
+
+.w-result__highlight {
+    background: $app-accent-color02;
+    font-style: normal;
+}

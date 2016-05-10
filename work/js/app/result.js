@@ -12,8 +12,10 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         createTableData,
         getData,
         sortData,
+        highlightData,
         filterDataByName,
-        filterDataByYear;
+        filterDataByYear,
+        filterDataByGame;
 
     initView = function () {
         var frag = document.createDocumentFragment(),
@@ -126,7 +128,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                 tr.appendChild(td);
 
                 td.className = 'w-result__cell';
-                td.textContent = collection[p][headers[q].id];
+                td.classList.add(td.className + '--' + headers[q].id);
+                td.textContent = collection[p][headers[q].id] || '';
             }
         }
         return tbody;
@@ -160,6 +163,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             data;
 
         data = collection.filter(function (player) {
+            if (!player.hasOwnProperty('a')) {
+                return false;
+            }
             if (wildcard) {
                 return player.a.toLowerCase().indexOf(arg.toLowerCase()) >= 0;
             } else {
@@ -171,7 +177,20 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     filterDataByYear = function (collection, arg) {
         var data = collection.filter(function (player) {
+            if (!player.hasOwnProperty('b')) {
+                return false;
+            }
             return player.b.toString().indexOf(arg) >= 0;
+        });
+        return data;
+    };
+
+    filterDataByGame = function (collection, arg) {
+        var data = collection.filter(function (player) {
+            if (!player.hasOwnProperty('d')) {
+                return false;
+            }
+            return player.d.toLowerCase().indexOf(arg.toLowerCase()) >= 0;
         });
         return data;
     };
@@ -223,7 +242,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                 }).map(function (player) {
                     return player.d;
                 }).unique().sort(helper.byInt);
-                
+
                 /* list lgIDs */
                 resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('f');
@@ -251,7 +270,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                     initView();
                 });
 
-                print('data inited: '+resultObj.data);
+                print('data inited: ' + resultObj.data);
 
             }, function (error) {
                 console.error("Failed!", error);
@@ -274,12 +293,31 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         return data;
     };
 
+    /*
+     *  http://stackoverflow.com/questions/3294576/javascript-highlight-substring-keeping-original-case-but-searching-in-case-inse
+     */
+    highlightData = function (value, cells) {
+        var string,
+            re = new RegExp((value), 'gi');
+        helper.forEach(cells, function (cell) {
+
+            string = cell.textContent;
+            string = string.replace(re, function (str) {
+                return '<i class="w-result__highlight">' + str + '</i>';
+            });
+
+            cell.innerHTML = string;
+        });
+    };
+
     return {
         getData: getData,
+        highlightData: highlightData,
         //initView: initView,
         createView: createView,
         filterDataByName: filterDataByName,
         filterDataByYear: filterDataByYear,
+        filterDataByGame: filterDataByGame,
         sortData: sortData
     };
 });
