@@ -3,8 +3,50 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
     'use strict';
 
     var createForm,
+        createFormSpecials,
+        autoSubmitForm = false,
         submitForm,
-        myTime;
+        submitTimer,
+        submitTimeOut;
+
+    submitTimeOut = function () {
+        if (autoSubmitForm === false) {
+            return;
+        }
+        clearTimeout(submitTimer);
+        submitTimer = setTimeout(function () {
+            submitForm();
+        }, 1000);
+    };
+
+    createFormSpecials = function () {
+        var wrapper = document.createElement('div'),
+            highlight,
+            autosubmit;
+
+        wrapper.className = 'iets';
+
+        highlight = wCheckbox.create({
+            id: 'highlight',
+            label: 'show highlighting'
+        });
+        highlight.addEventListener('click', function () {
+            submitForm();
+        });
+        wrapper.appendChild(highlight);
+
+        autosubmit = wCheckbox.create({
+            id: 'autosubmitform',
+            label: 'submit while typing'
+        });
+        autosubmit.addEventListener('click', function () {
+            autoSubmitForm = !autoSubmitForm;
+            print(autoSubmitForm);
+        });
+        wrapper.appendChild(autosubmit);
+
+        return wrapper;
+    };
 
     createForm = function () {
         var frag = document.createDocumentFragment(),
@@ -29,13 +71,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         formWrapper.appendChild(nameInput);
 
         nameInput.addEventListener('keyup', function () {
-
-            clearTimeout(myTime);
-
-            myTime = setTimeout(function () {
-                submitForm();
-            }, 600);
-
+            submitTimeOut();
         });
 
         /*
@@ -47,7 +83,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         });
         formWrapper.appendChild(wildcardCheckbox);
         wildcardCheckbox.addEventListener('click', function () {
-            //submitForm();
+            submitTimeOut();
         });
 
         /*
@@ -60,13 +96,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         formWrapper.appendChild(yearInput);
 
         yearInput.addEventListener('keyup', function () {
-
-            clearTimeout(myTime);
-
-            myTime = setTimeout(function () {
-                submitForm();
-            }, 600);
-
+            submitTimeOut();
         });
 
         /*
@@ -79,13 +109,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         formWrapper.appendChild(gameInput);
 
         gameInput.addEventListener('keyup', function () {
-
-            clearTimeout(myTime);
-
-            myTime = setTimeout(function () {
-                submitForm();
-            }, 600);
-
+            submitTimeOut();
         });
 
         gpRadios = wRadio.createGroup(aResult.getData().data.list_GP, {
@@ -94,8 +118,9 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             zero: true
         });
         formWrapper.appendChild(gpRadios);
+        
         helper.forEach(gpRadios.querySelectorAll('input.w-radio__radio'), function (radio, index) {
-            print(index);
+            //print(index);
             if (index === 0) {
                 radio.checked = true;
             }
@@ -116,6 +141,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         searchButton.addEventListener('click', function () {
             submitForm();
         });
+
+        frag.appendChild(createFormSpecials());
 
         return frag;
     };
@@ -146,7 +173,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             data = aResult.filterDataByGame(data, gameID_value);
             //sortfield = 'd';
         }
-        
+
         if (GP_value !== '') {
             data = aResult.filterDataByGP(data, GP_value);
             //sortfield = 'd';

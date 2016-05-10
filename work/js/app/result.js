@@ -135,7 +135,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                     input = document.getElementById(headers[q].text);
                     //                    print(input);
                     value = player[headers[q].id];
-                    if (input && input.value !== '') {
+                    if (document.getElementById('highlight').checked && input && input.value !== '') {
                         value = addHiglight(input.value, value);
                     }
 
@@ -302,9 +302,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             });
         }
     };
+    
+    /*
+     *  Sorts the data on a given field
+     */
 
     sortData = function (data, sortObj) {
-
         if (sortObj.field === resultObj.sortField && !sortObj.order) {
             data.reverse();
         } else {
@@ -317,14 +320,18 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         return data;
     };
-
+    
     /*
-     *  http://stackoverflow.com/questions/3294576/javascript-highlight-substring-keeping-original-case-but-searching-in-case-inse
+     *  highlights a substring in a string
+     *  - gi global ignore-case
      */
 
     addHiglight = function (value, string) {
         var sentence = string.toString(),
-            re = new RegExp((value), 'gi');
+            re = new RegExp(value, 'gi');
+        /*
+         *  http://stackoverflow.com/questions/3294576/javascript-highlight-substring-keeping-original-case-but-searching-in-case-inse
+         */
         sentence = sentence.replace(re, function (str) {
             return '<i class="w-result__highlight">' + str + '</i>';
         });
