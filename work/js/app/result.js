@@ -270,7 +270,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                     initView();
                 });
 
-                print('data inited: ' + resultObj.data);
+                print(resultObj);
 
             }, function (error) {
                 console.error("Failed!", error);

@@ -9,53 +9,67 @@ define(['app/print', 'app/helpers'], function (print, helper) {
     create = function (specs) {
         var div = document.createElement('div'),
             span,
-            checkbox = document.createElement('input'),
+            radio = document.createElement('input'),
             label;
 
-        div.className = 'w-checkbox';
+        div.className = 'w-radio';
 
-        checkbox.id = (specs.hasOwnProperty('id') ? specs.id : '');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'w-checkbox__checkbox';
+        if (specs.hasOwnProperty('id')) {
+            radio.id = specs.id;
+        }
+        if (specs.hasOwnProperty('name')) {
+            radio.name = specs.name;
+        }
+        radio.type = 'radio';
+        radio.className = 'w-radio__radio';
 
         if (specs.hasOwnProperty('label')) {
             label = document.createElement('label');
 
             span = document.createElement('span');
-            span.className = 'w-checkbox__label';
+            span.className = 'w-radio__label';
             span.textContent = specs.label;
 
-            label.appendChild(checkbox);
+            label.appendChild(radio);
             label.appendChild(span);
 
             div.appendChild(label);
         } else {
-            div.appendChild(checkbox);
+            div.appendChild(radio);
         }
-
-        /* 
-         *  html checkbox steels focus on win not mac
-         */
-        checkbox.addEventListener('mousedown', function (event) {
-            event.preventDefault();
-        });
 
         return div;
     };
 
     createGroup = function (items, specs) {
         var wrapper = document.createElement('div'),
-            label;
+            label,
+            name;
+
+        wrapper.className = 'w-radio__group';
+
+        if (!specs.hasOwnProperty('name')) {
+            console.error('a radiogroup needs a name');
+        }
 
         if (specs.hasOwnProperty('label')) {
             label = document.createElement('div');
             wrapper.appendChild(label);
             label.textContent = specs.label;
         }
-        wrapper.className = 'w-checkbox__group';
+
+        if (specs.hasOwnProperty('zero') && specs.zero === true) {
+            wrapper.appendChild(create({
+                //id: 'zero',
+                name: specs.name,
+                label: 'none'
+            }));
+        }
+
         helper.forEach(items, function (item) {
             wrapper.appendChild(create({
                 id: item,
+                name: specs.name,
                 label: item
             }));
         });

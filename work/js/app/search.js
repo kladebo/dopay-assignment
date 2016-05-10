@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox'], function (print, helper, aResult, wInput, wButton, wCheckbox) {
+define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox', 'app/widget-input-radio'], function (print, helper, aResult, wInput, wButton, wCheckbox, wRadio) {
     'use strict';
 
     var createForm,
@@ -13,6 +13,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             yearInput,
             gameInput,
             searchButton,
+            gpRadios,
             wildcardCheckbox;
 
         frag.appendChild(formWrapper);
@@ -67,7 +68,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             }, 600);
 
         });
-        
+
         /*
          *  game input-field
          */
@@ -85,6 +86,23 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
                 submitForm();
             }, 600);
 
+        });
+
+        gpRadios = wRadio.createGroup(aResult.getData().data.list_GP, {
+            label: 'GP',
+            name: 'gpRadios',
+            zero: true
+        });
+        formWrapper.appendChild(gpRadios);
+        helper.forEach(gpRadios.querySelectorAll('input.w-radio__radio'), function (radio, index) {
+            print(index);
+            if (index === 0) {
+                print('binnen');
+                radio.checked = true;
+            }
+            radio.addEventListener('change', function () {
+                print(radio.id);
+            });
         });
 
         /*
@@ -122,7 +140,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             data = aResult.filterDataByYear(data, yearID_value);
             sortfield = 'b';
         }
-        
+
         if (gameID_value !== '') {
             data = aResult.filterDataByGame(data, gameID_value);
             //sortfield = 'd';
@@ -132,7 +150,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          * Submit ONLY when there is an active-filter
          */
         aResult.createView({});
-        
+
         if (data.length !== aResult.getData().totalItems()) {
             aResult.createView(aResult.sortData(data, {
                 field: sortfield,
@@ -142,7 +160,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             if (playerID_value !== '') {
                 aResult.highlightData(playerID_value, document.querySelectorAll('td.w-result__cell--a'));
             }
-            
+
             if (gameID_value !== '') {
                 aResult.highlightData(gameID_value, document.querySelectorAll('td.w-result__cell--d'));
             }

@@ -9,7 +9,7 @@
    Base-settings:
    ========================================================================== */
 
-.w-checkbox {
+.w-radio {
     display: inline-block;
     border: .1em solid silver;
 }
@@ -18,18 +18,22 @@
    HTML element input:
    ========================================================================== */
 
-.w-checkbox__checkbox {}
+.w-radio__radio {}
 
 /* ==========================================================================
    HTML element span: holds the actual text
    ========================================================================== */
 
-.w-checkbox__label {}
+.w-radio__label {}
 
 /* ==========================================================================
-   HTML element div: a wrapper for multiple checkboxes
+   HTML element div: a wrapper for multiple radios
    ========================================================================== */
 
-.w-checkbox__group {
+.w-radio__group {
     display: inline-block;
+}
+
+.w-radio__group .w-radio{
+    display: block;
 }
