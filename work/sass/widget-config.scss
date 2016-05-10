@@ -22,6 +22,13 @@ $widget-backgound: linear-gradient(#ffffff, #F6F6F6);
    Mixins for the widgets: w-select, w-input
    ========================================================================== */
 
+@mixin widget-alignment{
+    margin: 0;
+    margin-bottom: .25em;
+    margin-right: .25em;
+    vertical-align: bottom;
+}
+
 @mixin widget-base() {
     background: $widget-backgound;
     border: $widget-border-specs;
@@ -29,11 +36,12 @@ $widget-backgound: linear-gradient(#ffffff, #F6F6F6);
     box-shadow: $widget-box-shadow-specs;
     box-sizing: border-box;
     display: inline-block;
-    margin-right: .1em;
-    margin-bottom: .25em;
+    //margin-right: .1em;
+    //margin-bottom: .25em;
     position: relative;
     text-align: left;
-    vertical-align: top;
+    //vertical-align: top;
+    @include widget-alignment;
 }
 @mixin widget-focus() {
     background: $widget-active-color;

@@ -4,7 +4,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
     'use strict';
 
     var create,
-        createGroup;
+        createGroup,
+        getActive;
 
     create = function (specs) {
         var div = document.createElement('div'),
@@ -76,9 +77,31 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         return wrapper;
     };
 
+    getActive = function (groupName) {
+        print('name: ' + groupName);
+        var i, j,
+            items = document.getElementsByName(groupName);
+
+        if (items.length) {
+            for (i = 0, j = items.length; i < j; i += 1) {
+                if (items[i].checked) {
+                    return items[i];
+                }
+            }
+
+        } else {
+            items = document.getElementById(groupName);
+            if (items && items.checked) {
+                return items;
+            }
+        }
+        return {id:''};
+    };
+
     return {
         create: create,
-        createGroup: createGroup
+        createGroup: createGroup,
+        getActive: getActive
     };
 
 });

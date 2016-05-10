@@ -12,10 +12,11 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         createTableData,
         getData,
         sortData,
-        highlightData,
+        addHiglight,
         filterDataByName,
         filterDataByYear,
-        filterDataByGame;
+        filterDataByGame,
+        filterDataByGP;
 
     initView = function () {
         var frag = document.createDocumentFragment(),
@@ -115,7 +116,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
             headers = resultObj.data.headers(),
             p, q,
-            i, j;
+            i, j, player, value, input;
 
         for (p = 0, i = collection.length; p < i; p += 1) {
             tr = document.createElement('tr');
@@ -129,7 +130,19 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
                 td.className = 'w-result__cell';
                 td.classList.add(td.className + '--' + headers[q].id);
-                td.textContent = collection[p][headers[q].id] || '';
+                player = collection[p];
+                if (player.hasOwnProperty([headers[q].id])) {
+                    input = document.getElementById(headers[q].text);
+                    //                    print(input);
+                    value = player[headers[q].id];
+                    if (input && input.value !== '') {
+                        value = addHiglight(input.value, value);
+                    }
+
+                    td.innerHTML = value;
+                } else {
+                    td.textContent = '-';
+                }
             }
         }
         return tbody;
@@ -152,6 +165,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         wResultBody.innerHTML = '';
 
         if (data.length) {
+
             /* fill wrappers */
             wResultHeader.appendChild(createViewHeader(data));
             wResultBody.appendChild(createTable(data));
@@ -172,6 +186,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                 return player.a.toLowerCase().indexOf(arg.toLowerCase()) === 0;
             }
         });
+
         return data;
     };
 
@@ -191,6 +206,16 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                 return false;
             }
             return player.d.toLowerCase().indexOf(arg.toLowerCase()) >= 0;
+        });
+        return data;
+    };
+
+    filterDataByGP = function (collection, arg) {
+        var data = collection.filter(function (player) {
+            if (!player.hasOwnProperty('g')) {
+                return false;
+            }
+            return parseInt(player.g, 10) === parseInt(arg, 10);
         });
         return data;
     };
@@ -296,28 +321,23 @@ define(['app/print', 'app/helpers'], function (print, helper) {
     /*
      *  http://stackoverflow.com/questions/3294576/javascript-highlight-substring-keeping-original-case-but-searching-in-case-inse
      */
-    highlightData = function (value, cells) {
-        var string,
+
+    addHiglight = function (value, string) {
+        var sentence = string.toString(),
             re = new RegExp((value), 'gi');
-        helper.forEach(cells, function (cell) {
-
-            string = cell.textContent;
-            string = string.replace(re, function (str) {
-                return '<i class="w-result__highlight">' + str + '</i>';
-            });
-
-            cell.innerHTML = string;
+        sentence = sentence.replace(re, function (str) {
+            return '<i class="w-result__highlight">' + str + '</i>';
         });
+        return sentence;
     };
 
     return {
         getData: getData,
-        highlightData: highlightData,
-        //initView: initView,
         createView: createView,
         filterDataByName: filterDataByName,
         filterDataByYear: filterDataByYear,
         filterDataByGame: filterDataByGame,
+        filterDataByGP: filterDataByGP,
         sortData: sortData
     };
 });

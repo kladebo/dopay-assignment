@@ -15,8 +15,9 @@
     border-radius: $widget-border-radius;
     box-shadow: $widget-box-shadow-specs;
     color: $app-text-color;
-    margin-right: .25em;
-    margin-bottom: .25em;
+    //margin-right: .25em;
+    //margin-bottom: .25em;
+    @include widget-alignment;
     padding: .6em .9em;
 }
 

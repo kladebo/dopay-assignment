@@ -97,7 +97,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         helper.forEach(gpRadios.querySelectorAll('input.w-radio__radio'), function (radio, index) {
             print(index);
             if (index === 0) {
-                print('binnen');
                 radio.checked = true;
             }
             radio.addEventListener('change', function () {
@@ -126,7 +125,9 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             sortfield,
             playerID_value = document.getElementById('playerID').value,
             yearID_value = document.getElementById('yearID').value,
-            gameID_value = document.getElementById('gameID').value;
+            gameID_value = document.getElementById('gameID').value,
+            GP_value = wRadio.getActive('gpRadios').id;
+
 
         /*
          *  depending on input different sort-fields
@@ -145,6 +146,11 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             data = aResult.filterDataByGame(data, gameID_value);
             //sortfield = 'd';
         }
+        
+        if (GP_value !== '') {
+            data = aResult.filterDataByGP(data, GP_value);
+            //sortfield = 'd';
+        }
 
         /*
          * Submit ONLY when there is an active-filter
@@ -156,14 +162,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
                 field: sortfield,
                 order: 'a'
             }));
-
-            if (playerID_value !== '') {
-                aResult.highlightData(playerID_value, document.querySelectorAll('td.w-result__cell--a'));
-            }
-
-            if (gameID_value !== '') {
-                aResult.highlightData(gameID_value, document.querySelectorAll('td.w-result__cell--d'));
-            }
         }
     };
 

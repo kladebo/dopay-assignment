@@ -12,6 +12,7 @@
 .w-checkbox {
     display: inline-block;
     border: .1em solid silver;
+    @include widget-alignment;
 }
 
 /* ==========================================================================
@@ -32,4 +33,9 @@
 
 .w-checkbox__group {
     display: inline-block;
+    @include widget-alignment;
+}
+
+.w-checkbox__group .w-checkbox{
+    margin: 0;
 }

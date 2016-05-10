@@ -12,6 +12,7 @@
 .w-radio {
     display: inline-block;
     border: .1em solid silver;
+    @include widget-alignment;
 }
 
 /* ==========================================================================
@@ -32,8 +33,9 @@
 
 .w-radio__group {
     display: inline-block;
+    @include widget-alignment;
 }
-
-.w-radio__group .w-radio{
+.w-radio__group .w-radio {
     display: block;
+    margin: 0;
 }
