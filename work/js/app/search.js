@@ -210,37 +210,40 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         return frag;
     };
+    
+    
+    
+    /*
+     *  Actual 'submit'
+     */
 
     submitForm = function () {
-        var data = aResult.getData().data.players(),
-            sortfield,
-            playerID_value = document.getElementById('playerID').value,
-            yearID_value = document.getElementById('yearID').value,
-            gameID_value = document.getElementById('gameID').value,
-            GP_value = wRadio.getActive('GP-group').value;
+        var players = aResult.getData().data.players(),
+            sortfield;
 
 
 
         /*
-         *  Depending on input sort-fields caan differ
+         *  Filter the data
+         *  Depending on input sort-fields can differ
          */
 
-        if (playerID_value !== '') {
-            data = aResult.filterDataByName(data, playerID_value);
+        if (document.getElementById('playerID').value !== '') {
+            players = aResult.filterResultData(players, 'playerID');
             sortfield = 'a';
         }
 
-        if (yearID_value !== '') {
-            data = aResult.filterDataByYear(data, yearID_value);
+        if (document.getElementById('yearID').value !== '') {
+            players = aResult.filterResultData(players, 'yearID');
             sortfield = 'b';
         }
 
-        if (gameID_value !== '') {
-            data = aResult.filterDataByGame(data, gameID_value);
+        if (document.getElementById('gameID').value !== '') {
+            players = aResult.filterResultData(players, 'gameID');
         }
 
-        if (GP_value !== '') {
-            data = aResult.filterDataByGP(data, GP_value);
+        if (wRadio.getActive('GP-group').value !== '') {
+            players = aResult.filterResultData(players, 'GP');
         }
 
 
@@ -255,11 +258,11 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
 
         /*
-         *  Submit ONLY when there is an active-filter
+         *  Create new View ONLY when there is an active-filter
          */
 
-        if (data.length !== aResult.getData().totalItems()) {
-            aResult.createView(aResult.sortData(data, {
+        if (players.length !== aResult.getData().totalItems()) {
+            aResult.createView(aResult.sortData(players, {
                 field: sortfield,
                 order: 'a'
             }));

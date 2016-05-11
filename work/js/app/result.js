@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (print, helper, wCheckbox) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio'], function (print, helper, wCheckbox, wRadio) {
     'use strict';
 
     var origData,
@@ -13,10 +13,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
         getData,
         sortData,
         addHiglight,
-        filterDataByName,
-        filterDataByYear,
-        filterDataByGame,
-        filterDataByGP;
+        filterResultData;
 
 
 
@@ -229,63 +226,81 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
         resultObj.viewdata = data;
 
 
-        /* Fill or Clear wrappers */
+        /* Clears and or Fills the wrappers */
+
+        wResultHeader.innerHTML = '';
+        wResultBody.innerHTML = '';
 
         if (data.length) {
             wResultHeader.appendChild(createViewHeader(data));
             wResultBody.appendChild(createTable(data));
-        } else {
-            wResultHeader.innerHTML = '';
-            wResultBody.innerHTML = '';
         }
     };
 
-    filterDataByName = function (collection, arg) {
-        var wildcard = document.getElementById('playerID_contains').checked,
-            data;
+    
+    
+    /*
+     *  Filters the data 
+     *      - players: list of items
+     *      - type: function to filter with
+     */
 
-        data = collection.filter(function (player) {
+    filterResultData = function (players, type) {
+
+        /*
+         *  Filter funtions for each data/field type
+         */
+         
+        function playerID(player) {
             if (!player.hasOwnProperty('a')) {
                 return false;
             }
-            if (wildcard) {
-                return player.a.toLowerCase().indexOf(arg.toLowerCase()) >= 0;
+            if (document.getElementById('playerID_contains').checked) {
+                return player.a.toLowerCase().indexOf(document.getElementById('playerID').value.toLowerCase()) >= 0;
             } else {
-                return player.a.toLowerCase().indexOf(arg.toLowerCase()) === 0;
+                return player.a.toLowerCase().indexOf(document.getElementById('playerID').value.toLowerCase()) === 0;
             }
-        });
+        }
 
-        return data;
-    };
-
-    filterDataByYear = function (collection, arg) {
-        var data = collection.filter(function (player) {
+        function yearID(player) {
             if (!player.hasOwnProperty('b')) {
                 return false;
             }
-            return player.b.toString().indexOf(arg) >= 0;
-        });
-        return data;
-    };
+            return player.b.toString().indexOf(document.getElementById('yearID').value) >= 0;
+        }
 
-    filterDataByGame = function (collection, arg) {
-        var data = collection.filter(function (player) {
+        function gameID(player) {
             if (!player.hasOwnProperty('d')) {
                 return false;
             }
-            return player.d.toLowerCase().indexOf(arg.toLowerCase()) >= 0;
-        });
-        return data;
-    };
+            return player.d.toLowerCase().indexOf(document.getElementById('gameID').value.toLowerCase()) >= 0;
+        }
 
-    filterDataByGP = function (collection, arg) {
-        var data = collection.filter(function (player) {
+        function GP(player) {
             if (!player.hasOwnProperty('g')) {
                 return false;
             }
-            return parseInt(player.g, 10) === parseInt(arg, 10);
-        });
-        return data;
+            return parseInt(player.g, 10) === parseInt(wRadio.getActive('GP-group').value, 10);
+        }
+
+        
+        
+        /*
+         *  String to corresponding function
+         */
+        
+        if (type === 'playerID') type = playerID;
+        if (type === 'yearID') type = yearID;
+        if (type === 'gameID') type = gameID;
+        if (type === 'GP') type = GP;
+
+        
+        
+        /*
+         *  The actual filtering of the data
+         */
+        
+        return players.filter(type);
     };
 
 
@@ -309,7 +324,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
             helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
                 origData = response;
 
-                
+
                 /*
                  *  Add a dataId to the each player
                  */
@@ -331,9 +346,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
                     return origData.players.length;
                 };
 
-                
+
                 /* list teamIDs */
-                
+
                 resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('e');
                 }).map(function (player) {
@@ -342,9 +357,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
                     }
                 }).unique().sort();
 
-                
+
                 /* list yearIDs */
-                
+
                 resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('b');
                 }).map(function (player) {
@@ -352,44 +367,44 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
 
                 }).unique().sort(helper.byInt);
 
-                
+
                 /* list gameIDs */
-                
+
                 resultObj.data.list_gameID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('d');
                 }).map(function (player) {
                     return player.d;
                 }).unique().sort(helper.byInt);
 
-                
+
                 /* list lgIDs */
-                
+
                 resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('f');
                 }).map(function (player) {
                     return player.f;
                 }).unique().sort(helper.byInt);
 
-                
+
                 /* list GPs */
-                
+
                 resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('g');
                 }).map(function (player) {
                     return player.g;
                 }).unique().sort(helper.byInt);
 
-                
+
                 /* list startingPoss */
-                
+
                 resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('h');
                 }).map(function (player) {
                     return player.h;
 
                 }).unique().sort(helper.byInt);
-                
-                
+
+
                 /* create the searchForm */
 
                 require(['app/search'], function (search) {
@@ -450,10 +465,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
     return {
         getData: getData,
         createView: createView,
-        filterDataByName: filterDataByName,
-        filterDataByYear: filterDataByYear,
-        filterDataByGame: filterDataByGame,
-        filterDataByGP: filterDataByGP,
+        filterResultData: filterResultData,
         sortData: sortData
     };
 });
