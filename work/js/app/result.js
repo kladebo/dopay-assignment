@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers'], function (print, helper) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (print, helper, wCheckbox) {
     'use strict';
 
     var origData,
@@ -17,6 +17,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         filterDataByYear,
         filterDataByGame,
         filterDataByGP;
+
+
+
+    /*
+     *  Initializes the document with containers
+     */
 
     initView = function () {
         var frag = document.createDocumentFragment(),
@@ -45,6 +51,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         document.body.appendChild(frag);
     };
 
+
+
+    /*
+     *  Makes the header above the results with the metadata about the result
+     */
+
     createViewHeader = function (data) {
         var frag = document.createDocumentFragment(),
             wrapper = document.createElement('div'),
@@ -60,6 +72,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         return frag;
     };
 
+
+
+    /*
+     *  Makes the result-table
+     */
+
     createTable = function (data) {
         var table = document.createElement('table');
 
@@ -70,6 +88,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         return table;
     };
+
+
+
+    /*
+     *  Makes the result-table-header
+     */
 
     createTableHeader = function () {
         var tbody = document.createElement('tbody'),
@@ -82,8 +106,24 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         tbody.appendChild(tr);
         tr.className = 'w-result__header-row';
 
+        th = document.createElement('th');
+        tr.appendChild(th);
+        th.appendChild(wCheckbox.create({
+            id: 'selectAll'
+        }));
+        th.querySelector('#selectAll').addEventListener('change', function () {
+            var checkboxes,
+                i, j;
+
+            checkboxes = document.getElementsByName('activatePlayer');
+            for (i = 0, j = checkboxes.length; i < j; i += 1) {
+                checkboxes[i].checked = this.checked;
+            }
+        });
+
+
         for (i = 0, j = headers.length; i < j; i += 1) {
-            th = document.createElement('td');
+            th = document.createElement('th');
             tr.appendChild(th);
 
             th.textContent = headers[i].text;
@@ -95,8 +135,10 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             }
         }
 
-        /* attach sort event */
-        helper.forEach(tr.querySelectorAll('td'), function (th) {
+
+        /* Attach click event on td for Sorting */
+
+        helper.forEach(tr.querySelectorAll('th[data-id]'), function (th) {
             th.addEventListener('click', function () {
                 var sortfield = th.getAttribute('data-id'),
                     data = sortData(resultObj.viewdata, {
@@ -108,6 +150,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         return tbody;
     };
+
+
+
+    /*
+     *  Makes the result-table-body
+     */
 
     createTableData = function (collection) {
         var tbody = document.createElement('tbody'),
@@ -123,6 +171,14 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             tbody.appendChild(tr);
 
             tr.className = 'w-result__row';
+            tr.id = 'row_' + collection[p].dataId;
+
+            td = document.createElement('td');
+            tr.appendChild(td);
+            td.appendChild(wCheckbox.create({
+                id: 'player_' + collection[p].dataId,
+                name: 'activatePlayer'
+            }));
 
             for (q = 0, j = headers.length; q < j; q += 1) {
                 td = document.createElement('td');
@@ -133,8 +189,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                 player = collection[p];
                 if (player.hasOwnProperty([headers[q].id])) {
                     input = document.getElementById(headers[q].text);
-                    //                    print(input);
+
                     value = player[headers[q].id];
+
+
+                    /* Higlights the data if checkbox is checked */
+
                     if (document.getElementById('highlight').checked && input && input.value !== '') {
                         value = addHiglight(input.value, value);
                     }
@@ -148,6 +208,14 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         return tbody;
     };
 
+
+
+    /*
+     *  Makes the entire result-view based on the given data
+     *      - Clears or adds the header
+     *      - Clears or adds the table
+     */
+
     createView = function (data) {
 
         var frag = document.createDocumentFragment(),
@@ -160,15 +228,15 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         resultObj.viewdata = data;
 
-        /* clear wrappers */
-        wResultHeader.innerHTML = '';
-        wResultBody.innerHTML = '';
+
+        /* Fill or Clear wrappers */
 
         if (data.length) {
-
-            /* fill wrappers */
             wResultHeader.appendChild(createViewHeader(data));
             wResultBody.appendChild(createTable(data));
+        } else {
+            wResultHeader.innerHTML = '';
+            wResultBody.innerHTML = '';
         }
     };
 
@@ -220,6 +288,17 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         return data;
     };
 
+
+
+    /*
+     *  Retreives the json-file with the data
+     *      - Adds a dataId to each player
+     *      - Creates a resultobject which holds the data
+     *      - Distracts some lists from the data to use in the searchform
+     *
+     *      - Last but not least: creates the searchform
+     */
+
     getData = function () {
 
         resultObj = resultObj || {};
@@ -228,15 +307,19 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             return resultObj;
         } else {
             helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
-                //console.log("Success!", response);
                 origData = response;
 
-                resultObj.totalItems = function () {
-                    return origData.players.length;
-                };
+                
+                /*
+                 *  Add a dataId to the each player
+                 */
+
+                helper.forEach(origData.players, function (player, index) {
+                    player.dataId = index;
+                });
 
                 resultObj.data = {};
-                resultObj.data.data = response;
+                resultObj.data.data = origData;
                 resultObj.data.headers = function () {
                     return resultObj.data.data.headers;
                 };
@@ -244,7 +327,13 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                     return resultObj.data.data.players;
                 };
 
+                resultObj.totalItems = function () {
+                    return origData.players.length;
+                };
+
+                
                 /* list teamIDs */
+                
                 resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('e');
                 }).map(function (player) {
@@ -253,7 +342,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                     }
                 }).unique().sort();
 
+                
                 /* list yearIDs */
+                
                 resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('b');
                 }).map(function (player) {
@@ -261,34 +352,45 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
                 }).unique().sort(helper.byInt);
 
+                
                 /* list gameIDs */
+                
                 resultObj.data.list_gameID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('d');
                 }).map(function (player) {
                     return player.d;
                 }).unique().sort(helper.byInt);
 
+                
                 /* list lgIDs */
+                
                 resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('f');
                 }).map(function (player) {
                     return player.f;
                 }).unique().sort(helper.byInt);
 
+                
                 /* list GPs */
+                
                 resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('g');
                 }).map(function (player) {
                     return player.g;
                 }).unique().sort(helper.byInt);
 
+                
                 /* list startingPoss */
+                
                 resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
                     return player.hasOwnProperty('h');
                 }).map(function (player) {
                     return player.h;
 
                 }).unique().sort(helper.byInt);
+                
+                
+                /* create the searchForm */
 
                 require(['app/search'], function (search) {
                     document.body.appendChild(search.createForm());
@@ -302,9 +404,11 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             });
         }
     };
-    
+
+
+
     /*
-     *  Sorts the data on a given field
+     *  Sorts the json-data on a given field
      */
 
     sortData = function (data, sortObj) {
@@ -320,15 +424,20 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         return data;
     };
-    
+
+
+
     /*
-     *  highlights a substring in a string
-     *  - gi global ignore-case
+     *  Highlights a substring in a string
+     *      - gi: global ignore-case
      */
 
     addHiglight = function (value, string) {
         var sentence = string.toString(),
-            re = new RegExp(value, 'gi');
+            flags = 'gi',
+            re = new RegExp(value, flags);
+
+
         /*
          *  http://stackoverflow.com/questions/3294576/javascript-highlight-substring-keeping-original-case-but-searching-in-case-inse
          */

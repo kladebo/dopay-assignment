@@ -7,6 +7,15 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         createGroup,
         getActive;
 
+    //
+    // specs is a object with the following keys:
+    //  - value: the value for the radiobutton
+    //  - name: for naming a group
+    //  - label: the text behing the radiobutton
+    //
+    //  TODO: always use name
+    //
+
     create = function (specs) {
         var div = document.createElement('div'),
             span,
@@ -15,8 +24,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         div.className = 'w-radio';
 
-        if (specs.hasOwnProperty('id')) {
-            radio.id = specs.id;
+        if (specs.hasOwnProperty('value')) {
+            radio.value = specs.value;
         }
         if (specs.hasOwnProperty('name')) {
             radio.name = specs.name;
@@ -41,6 +50,20 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         return div;
     };
+    
+    
+
+    /*
+     *  items:
+     *      the array with labels 
+     *
+     *
+     *  specs:
+     *      is an object with the following keys:
+     *      - zero: creates a extra radio with the label:'none' and no id!
+     *      - name: for naming the group
+     *      - label: creates a header above the group
+     */
 
     createGroup = function (items, specs) {
         var wrapper = document.createElement('div'),
@@ -49,7 +72,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         wrapper.className = 'w-radio__group';
 
-        if (!specs.hasOwnProperty('name')) {
+        if (!specs.hasOwnProperty('groupname')) {
             console.error('a radiogroup needs a name');
         }
 
@@ -61,21 +84,28 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         if (specs.hasOwnProperty('zero') && specs.zero === true) {
             wrapper.appendChild(create({
-                //id: 'zero',
-                name: specs.name,
+                value: '',
+                name: specs.groupname,
                 label: 'none'
             }));
         }
 
         helper.forEach(items, function (item) {
             wrapper.appendChild(create({
-                id: item,
-                name: specs.name,
+                value: item,
+                name: specs.groupname,
                 label: item
             }));
         });
         return wrapper;
     };
+
+    
+    //
+    //  returns the active radio from a group of radios
+    //
+    //  TODO: always use name
+    //
 
     getActive = function (groupName) {
         print('name: ' + groupName);
@@ -95,11 +125,13 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                 return items;
             }
         }
-        return {id:''};
+        return {
+            id: ''
+        };
     };
 
     return {
-        create: create,
+        //create: create,
         createGroup: createGroup,
         getActive: getActive
     };

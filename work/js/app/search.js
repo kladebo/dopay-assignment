@@ -3,14 +3,19 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
     'use strict';
 
     var createForm,
-        createFormSpecials,
-        autoSubmitForm = false,
+        createSettings,
         submitForm,
         submitTimer,
         submitTimeOut;
 
+    
+    
+    /*
+     *  Submits the form with a timeOut
+     */
+    
     submitTimeOut = function () {
-        if (autoSubmitForm === false) {
+        if (document.getElementById('autosubmitform').checked === false) {
             return;
         }
         clearTimeout(submitTimer);
@@ -18,131 +23,190 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             submitForm();
         }, 1000);
     };
-
-    createFormSpecials = function () {
+    
+    
+    
+    /*
+     *  Makes a wrapper and includes filter settings like:
+     *      - highlight: Highlights the corresponding data
+     *      - autosearch: Submits with a timeOut while typing OR clicking on elements
+     */
+    
+    createSettings = function () {
         var wrapper = document.createElement('div'),
             highlight,
             autosubmit;
 
         wrapper.className = 'iets';
 
+
+
+        /*
+         *  Highlight checkbox
+         */
+
         highlight = wCheckbox.create({
             id: 'highlight',
-            label: 'show highlighting'
+            label: 'show highlighting',
+            checked: true
         });
         highlight.addEventListener('click', function () {
             submitForm();
         });
         wrapper.appendChild(highlight);
 
+
+
+        /*
+         *  Autosubmit checkbox
+         */
+
         autosubmit = wCheckbox.create({
             id: 'autosubmitform',
-            label: 'submit while typing'
+            label: 'submit while typing',
+            checked: true
         });
         autosubmit.addEventListener('click', function () {
-            autoSubmitForm = !autoSubmitForm;
-            print(autoSubmitForm);
+
+            if (this.checked) {
+                submitTimeOut();
+            }
         });
         wrapper.appendChild(autosubmit);
 
         return wrapper;
     };
 
+    
+    
+    /*
+     *  CreateForm: makes a wrapper and includes filter input elements like:
+     *      - playerID, yearID, gameID, gpRadios
+     */
+    
     createForm = function () {
         var frag = document.createDocumentFragment(),
             formWrapper = document.createElement('div'),
-            nameInput,
-            yearInput,
-            gameInput,
-            searchButton,
-            gpRadios,
+            playerID,
+            yearID,
+            gameID,
+            submitButton,
+            GP,
             wildcardCheckbox;
 
         frag.appendChild(formWrapper);
         formWrapper.className = 'w-form';
 
+
+
         /*
-         *  name input-field
+         *  playerID input-field
          */
-        nameInput = wInput.createInput({
+
+        playerID = wInput.createInput({
             id: 'playerID',
             placeholder: 'playerID'
         });
-        formWrapper.appendChild(nameInput);
+        formWrapper.appendChild(playerID);
 
-        nameInput.addEventListener('keyup', function () {
+        playerID.addEventListener('keyup', function () {
             submitTimeOut();
         });
 
+
+
         /*
-         *  checkbox toggles between name input-field starts/contains
+         *  Checkbox toggles between playerID starts/contains
          */
+
         wildcardCheckbox = wCheckbox.create({
             id: 'playerID_contains',
-            label: 'contains value'
+            label: 'contains value',
+            checked: true
         });
         formWrapper.appendChild(wildcardCheckbox);
         wildcardCheckbox.addEventListener('click', function () {
             submitTimeOut();
         });
 
+
+
         /*
-         *  year input-field
+         *  yearID input-field
          */
-        yearInput = wInput.createInput({
+
+        yearID = wInput.createInput({
             id: 'yearID',
             placeholder: 'yearID'
         });
-        formWrapper.appendChild(yearInput);
+        formWrapper.appendChild(yearID);
 
-        yearInput.addEventListener('keyup', function () {
+        yearID.addEventListener('keyup', function () {
             submitTimeOut();
         });
 
+
+
         /*
-         *  game input-field
+         *  gameID input-field
          */
-        gameInput = wInput.createInput({
+
+        gameID = wInput.createInput({
             id: 'gameID',
             placeholder: 'gameID'
         });
-        formWrapper.appendChild(gameInput);
+        formWrapper.appendChild(gameID);
 
-        gameInput.addEventListener('keyup', function () {
+        gameID.addEventListener('keyup', function () {
             submitTimeOut();
         });
 
-        gpRadios = wRadio.createGroup(aResult.getData().data.list_GP, {
+
+
+        /*
+         *  GP radiogroup
+         */
+
+        GP = wRadio.createGroup(aResult.getData().data.list_GP, {
             label: 'GP',
-            name: 'gpRadios',
+            groupname: 'GP-group',
             zero: true
         });
-        formWrapper.appendChild(gpRadios);
-        
-        helper.forEach(gpRadios.querySelectorAll('input.w-radio__radio'), function (radio, index) {
-            //print(index);
+        formWrapper.appendChild(GP);
+
+        helper.forEach(GP.querySelectorAll('input.w-radio__radio'), function (radio, index) {
             if (index === 0) {
                 radio.checked = true;
             }
             radio.addEventListener('change', function () {
-                print(radio.id);
+                print(radio.value);
+                submitTimeOut();
             });
         });
+
+
 
         /*
          *  submit-button
          */
-        searchButton = wButton.create({
-            text: 'find!',
+
+        submitButton = wButton.create({
+            text: 'Filter',
             css: 'w-button--submit'
         });
-        formWrapper.appendChild(searchButton);
+        formWrapper.appendChild(submitButton);
 
-        searchButton.addEventListener('click', function () {
+        submitButton.addEventListener('click', function () {
             submitForm();
         });
 
-        frag.appendChild(createFormSpecials());
+
+        
+        /*
+         *  Append the settings wrapper
+         */
+        
+        frag.appendChild(createSettings());
 
         return frag;
     };
@@ -153,12 +217,14 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             playerID_value = document.getElementById('playerID').value,
             yearID_value = document.getElementById('yearID').value,
             gameID_value = document.getElementById('gameID').value,
-            GP_value = wRadio.getActive('gpRadios').id;
+            GP_value = wRadio.getActive('GP-group').value;
+
 
 
         /*
-         *  depending on input different sort-fields
+         *  Depending on input sort-fields caan differ
          */
+
         if (playerID_value !== '') {
             data = aResult.filterDataByName(data, playerID_value);
             sortfield = 'a';
@@ -171,18 +237,26 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         if (gameID_value !== '') {
             data = aResult.filterDataByGame(data, gameID_value);
-            //sortfield = 'd';
         }
 
         if (GP_value !== '') {
             data = aResult.filterDataByGP(data, GP_value);
-            //sortfield = 'd';
         }
 
+
+
         /*
-         * Submit ONLY when there is an active-filter
+         *  Clear the last-view
+         *      TODO: spinner or something 
          */
+
         aResult.createView({});
+
+
+
+        /*
+         *  Submit ONLY when there is an active-filter
+         */
 
         if (data.length !== aResult.getData().totalItems()) {
             aResult.createView(aResult.sortData(data, {

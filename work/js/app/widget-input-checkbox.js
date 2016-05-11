@@ -18,6 +18,14 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         checkbox.type = 'checkbox';
         checkbox.className = 'w-checkbox__checkbox';
 
+        if (specs.hasOwnProperty('name')) {
+            checkbox.name = specs.name;
+        }
+
+        if (specs.hasOwnProperty('checked')) {
+            checkbox.checked = specs.checked;
+        }
+
         if (specs.hasOwnProperty('label')) {
             label = document.createElement('label');
 
