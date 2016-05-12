@@ -13,7 +13,7 @@ $widget-border-specs: .1em solid $widget-border-color;
 $widget-border-radius: .3em;
 $widget-dropdown-bgcolor: #fff;
 $widget-active-color: #fff;
-$widget-focus-color: #29B0F4;
+$widget-focus-color: $app-accent-color02;
 $widget-box-shadow-specs: .1em .1em .2em 0 #EDEDED;
 $widget-backgound: linear-gradient(#ffffff, #F6F6F6);
 $widget-disabled-color: rgba($app-primary-black, .2);
@@ -45,7 +45,7 @@ $widget-disabled-color: rgba($app-primary-black, .2);
 }
 @mixin widget__text-select--focus() {
     background: $widget-active-color;
-    border-color: $widget-focus-color;
+    //border-color: $widget-focus-color;
     @include widget--focus;
 }
 

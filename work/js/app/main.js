@@ -21,6 +21,7 @@ define(function (require) {
         
         //document.body.appendChild(search.createForm());
         //result.initView();
+        document.body.appendChild(search.initForm());
         result.getData();
     });
 

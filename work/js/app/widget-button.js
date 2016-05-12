@@ -5,11 +5,11 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     var create = function (specs) {
         var button = document.createElement('button'),
-            text = specs.text || 'button';
+            text = (specs.hasOwnProperty('text') ? specs.text : 'button');
 
         button.className = 'w-button';
-        if(specs.css){
-            button.className += ' '+specs.css;
+        if (specs.hasOwnProperty('css')) {
+            button.className += ' ' + specs.css;
         }
         button.textContent = text;
 

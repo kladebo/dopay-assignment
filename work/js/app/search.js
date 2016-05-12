@@ -2,27 +2,13 @@
 define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select'], function (print, helper, aResult, wInput, wButton, wCheckbox, wRadio, wSelect) {
     'use strict';
 
-    var createForm,
+    var initForm,
+        createForm,
+        createFormElements,
         createSettings,
         submitForm,
         submitTimer,
         submitTimeOut;
-
-
-
-    /*
-     *  Submits the form with a timeOut
-     */
-
-    submitTimeOut = function () {
-        if (document.getElementById('autosubmitform').checked === false) {
-            return;
-        }
-        clearTimeout(submitTimer);
-        submitTimer = setTimeout(function () {
-            submitForm();
-        }, 1000);
-    };
 
 
 
@@ -78,6 +64,44 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
     };
 
 
+    initForm = function () {
+        var frag = document.createDocumentFragment(),
+            wrapper = document.createElement('div'),
+            formWrapper = document.createElement('div');
+
+
+        frag.appendChild(wrapper);
+        wrapper.className = 'wrapper__form';
+
+        /*
+         *  Append the form wrapper
+         *      The form wrapper holds the form elements
+         */
+
+        wrapper.appendChild(formWrapper);
+        formWrapper.id = 'w-form';
+        formWrapper.className = 'w-form';
+
+        /*
+         *  Append the filter wrapper
+         *      The filter wrapper holds the active items from the widget-select
+         */
+
+        wrapper.appendChild(wSelect.initFilterWapper());
+
+
+
+        /*
+         *  Append the settings wrapper
+         *      Holds higlight and autosearch
+         */
+
+        wrapper.appendChild(createSettings());
+
+        return frag;
+    };
+
+
 
     /*
      *  CreateForm: makes a wrapper and includes filter input elements like:
@@ -85,18 +109,32 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
      */
 
     createForm = function () {
+        var formWrapper = document.getElementById('w-form');
+
+
+        /*
+         *  Append the 'form elements' to the 'form wrapper'
+         */
+
+        formWrapper.appendChild(createFormElements());
+    };
+
+
+
+
+
+
+
+    createFormElements = function () {
         var frag = document.createDocumentFragment(),
-            formWrapper = document.createElement('div'),
             playerID,
             wildcardCheckbox,
             yearID,
             gameID,
             GP,
             teamID,
+            startingPos,
             submitButton;
-
-        frag.appendChild(formWrapper);
-        formWrapper.className = 'w-form';
 
 
 
@@ -108,7 +146,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'playerID',
             placeholder: 'playerID'
         });
-        formWrapper.appendChild(playerID);
+        frag.appendChild(playerID);
 
         playerID.addEventListener('keyup', function () {
             submitTimeOut();
@@ -125,7 +163,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             label: 'contains value',
             checked: true
         });
-        formWrapper.appendChild(wildcardCheckbox);
+        frag.appendChild(wildcardCheckbox);
         wildcardCheckbox.addEventListener('click', function () {
             submitTimeOut();
         });
@@ -140,7 +178,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'yearID',
             placeholder: 'yearID'
         });
-        formWrapper.appendChild(yearID);
+        frag.appendChild(yearID);
 
         yearID.addEventListener('keyup', function () {
             submitTimeOut();
@@ -156,7 +194,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'gameID',
             placeholder: 'gameID'
         });
-        formWrapper.appendChild(gameID);
+        frag.appendChild(gameID);
 
         gameID.addEventListener('keyup', function () {
             submitTimeOut();
@@ -173,7 +211,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             groupname: 'GP-group',
             zero: true
         });
-        formWrapper.appendChild(GP);
+        frag.appendChild(GP);
 
         helper.forEach(GP.querySelectorAll('input.w-radio__radio'), function (radio, index) {
             if (index === 0) {
@@ -184,8 +222,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             });
         });
 
-        
-        
+
+
         /*
          *  teamID selectbox
          */
@@ -196,14 +234,29 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             title: 'teamID',
             //initial: 1,
             options: aResult.getData().data.list_teamID,
-            callback: function (){
+            callback: function () {
                 submitTimeOut();
             }
         });
-        formWrapper.appendChild(teamID);
-        
-        //  onchange
+        frag.appendChild(teamID);
 
+
+
+        /*
+         *  teamID selectbox
+         */
+
+        startingPos = wSelect.createSelect({
+            multiple: true,
+            id: 'startingPos',
+            title: 'startingPos',
+            //initial: 1,
+            options: aResult.getData().data.list_startingPos,
+            callback: function () {
+                submitTimeOut();
+            }
+        });
+        frag.appendChild(startingPos);
 
 
         /*
@@ -214,21 +267,32 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             text: 'Filter',
             css: 'w-button--submit'
         });
-        formWrapper.appendChild(submitButton);
+        frag.appendChild(submitButton);
 
         submitButton.addEventListener('click', function () {
             submitForm();
         });
 
 
-
-        /*
-         *  Append the settings wrapper
-         */
-
-        frag.appendChild(createSettings());
-
         return frag;
+
+    };
+
+
+
+    /*
+     *  Submits the form with a timeOut
+     */
+
+    submitTimeOut = function (time) {
+        var delay = time || 1000;
+        if (document.getElementById('autosubmitform').checked === false) {
+            return;
+        }
+        clearTimeout(submitTimer);
+        submitTimer = setTimeout(function () {
+            submitForm();
+        }, delay);
     };
 
 
@@ -266,11 +330,18 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             players = aResult.filterResultData(players, 'GP');
         }
 
-        if(document.getElementById('teamID').getAttribute('value')){
+        if (document.getElementById('teamID').getAttribute('value')) {
             players = aResult.filterResultData(players, 'teamID');
             sortfield = 'e';
         }
 
+        if (document.getElementById('startingPos').getAttribute('value')) {
+            players = aResult.filterResultData(players, 'startingPos');
+            sortfield = 'h';
+        }
+
+        
+        
         /*
          *  Clear the last-view
          *      TODO: spinner or something 
@@ -293,6 +364,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
     };
 
     return {
+        initForm: initForm,
         createForm: createForm,
         submitTimeOut: submitTimeOut
     };

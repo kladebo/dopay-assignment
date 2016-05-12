@@ -1,6 +1,6 @@
 /*global define: false, require:false */
 
-define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (print, helper, wCheckbox) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-button'], function (print, helper, wCheckbox, wButton) {
     'use strict';
 
     var createSelect,
@@ -8,7 +8,21 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
         createOptions,
         createOptionGroups,
         multipleMenu,
-        setValue;
+        setValue,
+
+        initFilterWapper,
+        createButtons;
+
+
+
+    initFilterWapper = function () {
+        var wrapper = document.createElement('div');
+
+        wrapper.className = 'w-select__filterbar';
+        wrapper.id = 'filterBar';
+
+        return wrapper;
+    };
 
 
 
@@ -21,12 +35,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
 
 
     /*
-     *  Creates the options for the dropdown
-     *      options: object with the following keys
+     *  Creates the HTML LI elements for the dropdown
+     *      options: Collection of objects with the following keys:
      *          id: 
      *          value:
      *          text:
-     *      multiple: boolean; creates a checkbox within the option
+     *      multiple: boolean; Creates a checkbox within the option
      */
 
     createOptions = function (options, multiple) {
@@ -43,7 +57,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
             li.setAttribute('data-value', option.value);
 
             if (multiple) {
-                checkbox = wCheckbox.create({});
+                checkbox = wCheckbox.create({
+                    name: 'checkbox_' + option.id
+                });
                 li.appendChild(checkbox);
                 checkbox.querySelector('input.w-checkbox__checkbox').classList.add('w-select__item-checkbox');
             }
@@ -52,9 +68,51 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
         });
         return frag;
     };
+    
+    
+    /*
+     *  Each select-widget can have a bar with the activated options
+     */
 
+    createButtons = function (item) {
+        var frag = document.createDocumentFragment(),
+            mainwrapper = document.getElementById('filterBar'),
+            wrapper,
+            button,
+            label;
 
+        if (!mainwrapper) {
+            console.error('There should be a element with: id="filterBar" on the page...');
+            return;
+        }
 
+        wrapper = document.getElementById('filter_' + item.id);
+        if (!wrapper) {
+            wrapper = document.createElement('div');
+            mainwrapper.appendChild(wrapper);
+            wrapper.id = 'filter_' + item.id;
+        }
+        wrapper.innerHTML = '';
+
+        helper.forEach(item.options, function (option) {
+            label = document.createElement('label');
+            label.setAttribute('for', 'checkbox_' + option.id);
+            frag.appendChild(label);
+
+            button = wButton.create({
+                id: 'filterbutton_' + option.id,
+                text: option.text,
+                css: 'w-button--filter'
+            });
+            label.appendChild(button);
+        });
+
+        wrapper.appendChild(frag);
+    };
+
+    
+    
+    
     /*
      *  Creates a span between the option of a group
      *      like a HTML optiongroup
@@ -149,9 +207,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
         dropdown.id = item.id;
         dropdown.className = 'w-select__dropdown';
         dropdown.classList.add('w-select__dropdown--hidden');
-        //dropdown.setAttribute('value', '');
-        
-        
+
+
         // insert toggle-all menu when multiple
         if (multiple) {
             dropdown.appendChild(multipleMenu());
@@ -160,7 +217,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
                     li.classList.add('w-select__item-multiple--active');
                     li.querySelector('.w-select__item-checkbox').checked = true;
                 });
-                
+
                 setValue(dropdown);
             });
             dropdown.querySelector('span#select-none').addEventListener('click', function (event) {
@@ -168,7 +225,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
                     li.classList.remove('w-select__item-multiple--active');
                     li.querySelector('.w-select__item-checkbox').checked = false;
                 });
-                
+
                 setValue(dropdown);
             });
             dropdown.addEventListener('click', function (event) {
@@ -192,7 +249,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
             dropdown.appendChild(createOptions(item.options, multiple));
         }
 
-
+        createButtons(item);
 
         /*
          *  Attaches the following events to the main widget:
@@ -208,24 +265,24 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
             toggleDropDown(dropdown);
         });
 
-        
-        
-         /*
+
+
+        /*
          *  Attaches the following events to the main widget:
          *      focus: so the widget gets its visual focus
-         */       
-        
+         */
+
         div.addEventListener('focus', function () {
             div.classList.add('focus');
         });
 
-        
-        
-         /*
+
+
+        /*
          *  Attaches the following events to the main widget:
          *      blur: makes the widget-dropdown disapear
          */
-        
+
         div.addEventListener('blur', function () {
             div.classList.remove('focus');
             hideDropDown(dropdown);
@@ -260,7 +317,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
                         checkbox = item.querySelector('.w-select__item-checkbox');
                         checkbox.checked = (item.className.indexOf('w-select__item-multiple--active') >= 0) ? true : false;
                     }
-                    
+
                     setValue(dropdown);
                 };
             }(li)));
@@ -269,8 +326,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
         return div;
     };
 
-    
-    
+    function optionclicked() {
+
+    }
+
     /*
      *  Returns the active children from a dropdown
      */
@@ -278,30 +337,33 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox'], function (prin
     setValue = function (dropdown) {
         var i, j,
             options,
+            optionButtons,
             css,
             active = [];
-        
+
         options = dropdown.children;
-        
+
         for (i = 0, j = options.length; i < j; i += 1) {
             css = options[i].className;
-            if(css.indexOf('--active') > -1){
+            if (css.indexOf('--active') > -1) {
                 active.push(options[i].getAttribute('data-value'));
             }
         }
         dropdown.setAttribute('value', active);
-        
+
+        // createButtons(dropdown);
+
         require(['app/search'], function (wSearch) {
-            wSearch.submitTimeOut();
+            wSearch.submitTimeOut(2000);
         });
 
         return active;
-        
-        
+
     };
 
     return {
         createSelect: createSelect,
-        disableSelect: disableSelect
+        disableSelect: disableSelect,
+        initFilterWapper: initFilterWapper
     };
 });

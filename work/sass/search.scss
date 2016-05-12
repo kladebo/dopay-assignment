@@ -8,8 +8,9 @@
    Base-settings:
    ========================================================================== */
 
-.w-form {
+.wrapper__form {
     border-bottom: .1em solid $app-border-color;
     padding: 2em;
     background: $app-accent-color-bg01;
 }
+.w-form {}

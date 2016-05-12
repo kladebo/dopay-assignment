@@ -78,10 +78,10 @@
     min-width: 100%;
     z-index: 2;
 }
-
-.w-select__dropdown--hidden{
+.w-select__dropdown--hidden {
     display: none;
 }
+
 /*
  * Dropdown-header. MultiSelect can hold a header 
  */
@@ -147,4 +147,14 @@
 .w-select__item-checkbox {
     vertical-align: text-bottom;
     margin-right: .4em;
+}
+
+/* ==========================================================================
+   Select-items: these are the clickable items within the dropdown menu
+   ========================================================================== */
+
+.w-select__filterbar {
+    border-top: .1em solid $app-border-color;
+    margin-top: 1em;
+    padding: 1em 0;
 }

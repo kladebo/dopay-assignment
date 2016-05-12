@@ -284,11 +284,19 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         }
 
         function teamID(player) {
-            var active = document.getElementById('teamID').getAttribute('value');
+            var active = ',' + document.getElementById('teamID').getAttribute('value') + ',';
             if (!player.hasOwnProperty('e')) {
                 return false;
             }
-            return active.indexOf(player.e) > -1;
+            return active.indexOf(',' + player.e + ',') > -1;
+        }
+
+        function startingPos(player) {
+            var active = ',' + document.getElementById('startingPos').getAttribute('value') + ',';
+            if (!player.hasOwnProperty('h')) {
+                return false;
+            }
+            return active.indexOf(',' + player.h + ',') > -1;
         }
 
 
@@ -311,6 +319,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         }
         if (type === 'teamID') {
             type = teamID;
+        }
+        if (type === 'startingPos') {
+            type = startingPos;
         }
 
 
@@ -402,6 +413,16 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     }).unique().sort(helper.byInt);
 
 
+                    /* list gameNums */
+
+                    resultObj.data.list_gameNum = resultObj.data.players().filter(function (player) {
+                        return player.hasOwnProperty('c');
+                    }).map(function (player) {
+                        return player.c;
+
+                    }).unique().sort(helper.byInt);
+
+
                     /* list gameIDs */
 
                     resultObj.data.list_gameID = resultObj.data.players().filter(function (player) {
@@ -438,11 +459,13 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
                     }).unique().sort(helper.byInt);
 
+                    makeSelectList(resultObj.data.list_startingPos);
+
 
                     /* create the searchForm */
 
                     require(['app/search'], function (search) {
-                        document.body.appendChild(search.createForm());
+                        search.createForm();
                         initView();
                     });
 

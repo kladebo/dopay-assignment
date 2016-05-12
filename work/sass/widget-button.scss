@@ -33,3 +33,17 @@
     background: $app-accent-color01;
     border-color: $app-accent-color01;
 }
+.w-button--filter{
+    font-size: .8em;
+    padding: 0 .3em;
+    &:before{
+        content: '\2715';
+        font-size: 1em;
+//        font-weight: bold;
+        line-height: 0;
+        margin-right: .2em;
+    }
+}
+.w-button--filter-disabled{
+    display: none;
+}
