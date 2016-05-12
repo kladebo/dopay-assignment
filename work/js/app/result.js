@@ -237,8 +237,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         }
     };
 
-    
-    
+
+
     /*
      *  Filters the data 
      *      - players: list of items
@@ -250,7 +250,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         /*
          *  Filter funtions for each data/field type
          */
-         
+
         function playerID(player) {
             if (!player.hasOwnProperty('a')) {
                 return false;
@@ -283,23 +283,42 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             return parseInt(player.g, 10) === parseInt(wRadio.getActive('GP-group').value, 10);
         }
 
-        
-        
+        function teamID(player) {
+            var active = document.getElementById('teamID').getAttribute('value');
+            if (!player.hasOwnProperty('e')) {
+                return false;
+            }
+            return active.indexOf(player.e) > -1;
+        }
+
+
+
         /*
          *  String to corresponding function
          */
-        
-        if (type === 'playerID') type = playerID;
-        if (type === 'yearID') type = yearID;
-        if (type === 'gameID') type = gameID;
-        if (type === 'GP') type = GP;
 
-        
-        
+        if (type === 'playerID') {
+            type = playerID;
+        }
+        if (type === 'yearID') {
+            type = yearID;
+        }
+        if (type === 'gameID') {
+            type = gameID;
+        }
+        if (type === 'GP') {
+            type = GP;
+        }
+        if (type === 'teamID') {
+            type = teamID;
+        }
+
+
+
         /*
          *  The actual filtering of the data
          */
-        
+
         return players.filter(type);
     };
 
@@ -322,101 +341,117 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             return resultObj;
         } else {
             helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
-                origData = response;
+                    var i, j, list, item;
+                    origData = response;
 
+                    function makeSelectList(list) {
+                        for (i = 0, j = list.length; i < j; i += 1) {
+                            item = {};
+                            item.id = i;
+                            item.value = list[i];
+                            item.text = list[i];
 
-                /*
-                 *  Add a dataId to the each player
-                 */
-
-                helper.forEach(origData.players, function (player, index) {
-                    player.dataId = index;
-                });
-
-                resultObj.data = {};
-                resultObj.data.data = origData;
-                resultObj.data.headers = function () {
-                    return resultObj.data.data.headers;
-                };
-                resultObj.data.players = function () {
-                    return resultObj.data.data.players;
-                };
-
-                resultObj.totalItems = function () {
-                    return origData.players.length;
-                };
-
-
-                /* list teamIDs */
-
-                resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
-                    return player.hasOwnProperty('e');
-                }).map(function (player) {
-                    if (player.e) {
-                        return player.e;
+                            list[i] = item;
+                        }
+                        return list;
                     }
-                }).unique().sort();
 
 
-                /* list yearIDs */
+                    /*
+                     *  Add a dataId to the each player
+                     */
 
-                resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
-                    return player.hasOwnProperty('b');
-                }).map(function (player) {
-                    return player.b;
+                    helper.forEach(origData.players, function (player, index) {
+                        player.dataId = index;
+                    });
 
-                }).unique().sort(helper.byInt);
+                    resultObj.data = {};
+                    resultObj.data.data = origData;
+                    resultObj.data.headers = function () {
+                        return resultObj.data.data.headers;
+                    };
+                    resultObj.data.players = function () {
+                        return resultObj.data.data.players;
+                    };
 
-
-                /* list gameIDs */
-
-                resultObj.data.list_gameID = resultObj.data.players().filter(function (player) {
-                    return player.hasOwnProperty('d');
-                }).map(function (player) {
-                    return player.d;
-                }).unique().sort(helper.byInt);
-
-
-                /* list lgIDs */
-
-                resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
-                    return player.hasOwnProperty('f');
-                }).map(function (player) {
-                    return player.f;
-                }).unique().sort(helper.byInt);
+                    resultObj.totalItems = function () {
+                        return origData.players.length;
+                    };
 
 
-                /* list GPs */
+                    /* list teamIDs */
 
-                resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
-                    return player.hasOwnProperty('g');
-                }).map(function (player) {
-                    return player.g;
-                }).unique().sort(helper.byInt);
+                    resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
+                        return player.hasOwnProperty('e');
+                    }).map(function (player) {
+                        if (player.hasOwnProperty('e')) {
+                            return player.e;
+                        }
+                    }).unique().sort();
 
-
-                /* list startingPoss */
-
-                resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
-                    return player.hasOwnProperty('h');
-                }).map(function (player) {
-                    return player.h;
-
-                }).unique().sort(helper.byInt);
+                    makeSelectList(resultObj.data.list_teamID);
 
 
-                /* create the searchForm */
+                    /* list yearIDs */
 
-                require(['app/search'], function (search) {
-                    document.body.appendChild(search.createForm());
-                    initView();
+                    resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
+                        return player.hasOwnProperty('b');
+                    }).map(function (player) {
+                        return player.b;
+
+                    }).unique().sort(helper.byInt);
+
+
+                    /* list gameIDs */
+
+                    resultObj.data.list_gameID = resultObj.data.players().filter(function (player) {
+                        return player.hasOwnProperty('d');
+                    }).map(function (player) {
+                        return player.d;
+                    }).unique().sort(helper.byInt);
+
+
+                    /* list lgIDs */
+
+                    resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
+                        return player.hasOwnProperty('f');
+                    }).map(function (player) {
+                        return player.f;
+                    }).unique().sort(helper.byInt);
+
+
+                    /* list GPs */
+
+                    resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
+                        return player.hasOwnProperty('g');
+                    }).map(function (player) {
+                        return player.g;
+                    }).unique().sort(helper.byInt);
+
+
+                    /* list startingPoss */
+
+                    resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
+                        return player.hasOwnProperty('h');
+                    }).map(function (player) {
+                        return player.h;
+
+                    }).unique().sort(helper.byInt);
+
+
+                    /* create the searchForm */
+
+                    require(['app/search'], function (search) {
+                        document.body.appendChild(search.createForm());
+                        initView();
+                    });
+
+                    print(resultObj);
+
+                },
+                function (error) {
+                    console.error("Failed!", error);
                 });
-
-                print(resultObj);
-
-            }, function (error) {
-                console.error("Failed!", error);
-            });
         }
     };
 

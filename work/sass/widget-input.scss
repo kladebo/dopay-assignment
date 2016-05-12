@@ -24,7 +24,7 @@
  */
 
 .w-input--focus {
-    @include widget-focus;
+    @include widget__text-select--focus;
 }
 
 /*

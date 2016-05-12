@@ -19,7 +19,13 @@
    HTML element input:
    ========================================================================== */
 
-.w-radio__radio {}
+.w-radio__radio {
+    /* removes blue line on chrome */
+    outline: none;
+}
+.w-radio__radio:focus {
+    @include widget--focus;
+}
 
 /* ==========================================================================
    HTML element span: holds the actual text

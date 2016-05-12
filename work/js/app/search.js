@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox', 'app/widget-input-radio'], function (print, helper, aResult, wInput, wButton, wCheckbox, wRadio) {
+define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select'], function (print, helper, aResult, wInput, wButton, wCheckbox, wRadio, wSelect) {
     'use strict';
 
     var createForm,
@@ -8,12 +8,12 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         submitTimer,
         submitTimeOut;
 
-    
-    
+
+
     /*
      *  Submits the form with a timeOut
      */
-    
+
     submitTimeOut = function () {
         if (document.getElementById('autosubmitform').checked === false) {
             return;
@@ -23,15 +23,15 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             submitForm();
         }, 1000);
     };
-    
-    
-    
+
+
+
     /*
      *  Makes a wrapper and includes filter settings like:
      *      - highlight: Highlights the corresponding data
      *      - autosearch: Submits with a timeOut while typing OR clicking on elements
      */
-    
+
     createSettings = function () {
         var wrapper = document.createElement('div'),
             highlight,
@@ -77,22 +77,23 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         return wrapper;
     };
 
-    
-    
+
+
     /*
      *  CreateForm: makes a wrapper and includes filter input elements like:
      *      - playerID, yearID, gameID, gpRadios
      */
-    
+
     createForm = function () {
         var frag = document.createDocumentFragment(),
             formWrapper = document.createElement('div'),
             playerID,
+            wildcardCheckbox,
             yearID,
             gameID,
-            submitButton,
             GP,
-            wildcardCheckbox;
+            teamID,
+            submitButton;
 
         frag.appendChild(formWrapper);
         formWrapper.className = 'w-form';
@@ -179,10 +180,29 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
                 radio.checked = true;
             }
             radio.addEventListener('change', function () {
-                print(radio.value);
                 submitTimeOut();
             });
         });
+
+        
+        
+        /*
+         *  teamID selectbox
+         */
+
+        teamID = wSelect.createSelect({
+            multiple: true,
+            id: 'teamID',
+            title: 'teamID',
+            //initial: 1,
+            options: aResult.getData().data.list_teamID,
+            callback: function (){
+                submitTimeOut();
+            }
+        });
+        formWrapper.appendChild(teamID);
+        
+        //  onchange
 
 
 
@@ -201,18 +221,18 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         });
 
 
-        
+
         /*
          *  Append the settings wrapper
          */
-        
+
         frag.appendChild(createSettings());
 
         return frag;
     };
-    
-    
-    
+
+
+
     /*
      *  Actual 'submit'
      */
@@ -225,7 +245,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         /*
          *  Filter the data
-         *  Depending on input sort-fields can differ
+         *  Depending on input the sort-field can differ
          */
 
         if (document.getElementById('playerID').value !== '') {
@@ -246,7 +266,10 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             players = aResult.filterResultData(players, 'GP');
         }
 
-
+        if(document.getElementById('teamID').getAttribute('value')){
+            players = aResult.filterResultData(players, 'teamID');
+            sortfield = 'e';
+        }
 
         /*
          *  Clear the last-view
@@ -270,6 +293,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
     };
 
     return {
-        createForm: createForm
+        createForm: createForm,
+        submitTimeOut: submitTimeOut
     };
 });

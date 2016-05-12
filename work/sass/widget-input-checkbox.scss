@@ -11,16 +11,22 @@
 
 .w-checkbox {
     display: inline-block;
-    border: .1em solid silver;
+//    border: .1em solid silver;
     @include widget-alignment;
 }
+
 
 /* ==========================================================================
    HTML element input:
    ========================================================================== */
 
-.w-checkbox__checkbox {}
-
+.w-checkbox__checkbox {
+    /* removes blue line on chrome */
+    outline: none;
+}
+.w-checkbox__checkbox:focus {
+    @include widget--focus;
+}
 /* ==========================================================================
    HTML element span: holds the actual text
    ========================================================================== */

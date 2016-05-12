@@ -15,8 +15,8 @@ $widget-dropdown-bgcolor: #fff;
 $widget-active-color: #fff;
 $widget-focus-color: #29B0F4;
 $widget-box-shadow-specs: .1em .1em .2em 0 #EDEDED;
-//$widget-disabled-color: rgba($app-primary-black, .2);
 $widget-backgound: linear-gradient(#ffffff, #F6F6F6);
+$widget-disabled-color: rgba($app-primary-black, .2);
 
 /* ==========================================================================
    Mixins for the widgets: w-select, w-input
@@ -36,15 +36,16 @@ $widget-backgound: linear-gradient(#ffffff, #F6F6F6);
     box-shadow: $widget-box-shadow-specs;
     box-sizing: border-box;
     display: inline-block;
-    //margin-right: .1em;
-    //margin-bottom: .25em;
     position: relative;
     text-align: left;
-    //vertical-align: top;
     @include widget-alignment;
 }
-@mixin widget-focus() {
-    background: $widget-active-color;
-    border-color: $widget-focus-color;
+@mixin widget--focus() {
     box-shadow: .1em .1em .3em 0 rgba($widget-focus-color, .6);
 }
+@mixin widget__text-select--focus() {
+    background: $widget-active-color;
+    border-color: $widget-focus-color;
+    @include widget--focus;
+}
+

@@ -108,7 +108,6 @@ define(['app/print', 'app/helpers'], function (print, helper) {
     //
 
     getActive = function (groupName) {
-        print('name: ' + groupName);
         var i, j,
             items = document.getElementsByName(groupName);
 
