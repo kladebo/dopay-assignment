@@ -134,6 +134,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             GP,
             teamID,
             startingPos,
+            gameNum,
             submitButton;
 
 
@@ -206,11 +207,12 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  GP radiogroup
          */
 
-        GP = wRadio.createGroup(aResult.getData().data.list_GP, {
-            label: 'GP',
-            groupname: 'GP-group',
-            zero: true
-        });
+        GP = wRadio.createGroup(
+            aResult.getData().data.list_GP, {
+                groupname: 'GP-group',
+                label: 'GP',
+                zero: true
+            });
         frag.appendChild(GP);
 
         helper.forEach(GP.querySelectorAll('input.w-radio__radio'), function (radio, index) {
@@ -259,12 +261,27 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         frag.appendChild(startingPos);
 
 
+
+        /*
+         *  gameNum checkbox-group
+         */
+
+        gameNum = wCheckbox.createGroup(
+            aResult.getData().data.list_gameNum, {
+                groupname: 'gameNum-group',
+                label: 'gameNum',
+                css: 'w-checkbox__group--block'
+            }
+        );
+        frag.appendChild(gameNum);
+
+
         /*
          *  submit-button
          */
 
         submitButton = wButton.create({
-            text: 'Filter',
+            label: 'Filter',
             css: 'w-button--submit'
         });
         frag.appendChild(submitButton);
@@ -305,16 +322,16 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         var players = aResult.getData().data.players(),
             sortfield;
 
-        
-        
+
+
         /*
          *  Clear the last-view
          *      TODO: spinner or something 
          */
 
         aResult.createView({});
-        
-        
+
+
 
         /*
          *  Filter the data

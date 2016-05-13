@@ -23,6 +23,10 @@
     display: none;
 }
 
+.w-checkbox--block{
+    display: block;
+}
+
 /* ==========================================================================
    HTML element input:
    ========================================================================== */
@@ -52,4 +56,12 @@
 
 .w-checkbox__group .w-checkbox{
     margin: 0;
+}
+
+/*
+ *
+ */
+
+.w-checkbox__group--block .w-checkbox {
+    display: block;
 }

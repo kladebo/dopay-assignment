@@ -13,15 +13,7 @@ body {
     font-family: "Noto Sans";
     font-size: 1em;
 }
-div {
-    span {
-        display: inline-block;
-        min-width: 6em;
-    }
-    > span+span {
-        margin-left: 1em;
-    }
-}
+
 
 
 /* ==========================================================================

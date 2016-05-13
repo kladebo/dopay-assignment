@@ -360,11 +360,15 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                             item = {};
                             item.id = i;
                             item.value = list[i];
-                            item.text = list[i];
+                            item.label = list[i];
 
                             list[i] = item;
                         }
                         return list;
+                    }
+
+                    function makeCheckList(list) {
+                        return makeSelectList(list);
                     }
 
 
@@ -421,6 +425,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         return player.c;
 
                     }).unique().sort(helper.byInt);
+
+                    makeCheckList(resultObj.data.list_gameNum);
 
 
                     /* list gameIDs */

@@ -60,6 +60,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
      *
      *  specs:
      *      is an object with the following keys:
+     *      - groupName: !!!
      *      - zero: creates a extra radio with the label:'none' and no id!
      *      - name: for naming the group
      *      - label: creates a header above the group

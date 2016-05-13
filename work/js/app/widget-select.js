@@ -94,7 +94,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
      *      options: Collection of objects with the following keys:
      *          id: 
      *          value:
-     *          text:
+     *          label:
      *      multiple: boolean; Creates a checkbox within the option
      */
 
@@ -122,7 +122,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
             checkbox.classList.add('w-select__item-checkbox');
 
 
-            li.appendChild(document.createTextNode(option.text));
+            li.appendChild(document.createTextNode(option.label));
 
             li.addEventListener('click', function (event) {
                 event.cancelBubble = true;
@@ -164,7 +164,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
 
             button = wButton.create({
                 id: 'button_' + item.id + '_' + option.id,
-                text: option.text,
+                label: option.label,
                 css: 'w-button--filter'
             });
             frag.appendChild(button);

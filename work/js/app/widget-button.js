@@ -5,7 +5,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     var create = function (specs) {
         var button = document.createElement('button'),
-            text = (specs.hasOwnProperty('text') ? specs.text : 'button');
+            label = (specs.hasOwnProperty('label') ? specs.label : 'button');
 
         button.className = 'w-button';
         if (specs.hasOwnProperty('id')) {
@@ -14,7 +14,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('css')) {
             button.className += ' ' + specs.css;
         }
-        button.textContent = text;
+        button.textContent = label;
 
         return button;
     };
