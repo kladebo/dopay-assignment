@@ -305,7 +305,16 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         var players = aResult.getData().data.players(),
             sortfield;
 
+        
+        
+        /*
+         *  Clear the last-view
+         *      TODO: spinner or something 
+         */
 
+        aResult.createView({});
+        
+        
 
         /*
          *  Filter the data
@@ -339,15 +348,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             players = aResult.filterResultData(players, 'startingPos');
             sortfield = 'h';
         }
-
-        
-        
-        /*
-         *  Clear the last-view
-         *      TODO: spinner or something 
-         */
-
-        aResult.createView({});
 
 
 

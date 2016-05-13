@@ -8,6 +8,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             text = (specs.hasOwnProperty('text') ? specs.text : 'button');
 
         button.className = 'w-button';
+        if (specs.hasOwnProperty('id')) {
+            button.id = specs.id;
+        }
         if (specs.hasOwnProperty('css')) {
             button.className += ' ' + specs.css;
         }

@@ -34,6 +34,7 @@
     border-color: $app-accent-color01;
 }
 .w-button--filter{
+    display: none;
     font-size: .8em;
     padding: 0 .3em;
     &:before{
@@ -44,6 +45,6 @@
         margin-right: .2em;
     }
 }
-.w-button--filter-disabled{
-    display: none;
+.w-button--filter-active{
+    display: inline-block;
 }

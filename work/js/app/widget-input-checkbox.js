@@ -14,11 +14,16 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         div.className = 'w-checkbox';
 
-        checkbox.id = (specs.hasOwnProperty('id') ? specs.id : '');
         checkbox.type = 'checkbox';
         checkbox.className = 'w-checkbox__checkbox';
 
-        if (specs.hasOwnProperty('name')) {
+        if (specs.hasOwnProperty('css') && specs.css !== '') {
+            checkbox.classList.add(specs.css);
+        }
+        if (specs.hasOwnProperty('id') && specs.id !== '') {
+            checkbox.id = specs.id;
+        }
+        if (specs.hasOwnProperty('name') && specs.name !== '') {
             checkbox.name = specs.name;
         }
 
@@ -26,7 +31,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             checkbox.checked = specs.checked;
         }
 
-        if (specs.hasOwnProperty('label')) {
+        if (specs.hasOwnProperty('label') && label !== '') {
             label = document.createElement('label');
 
             span = document.createElement('span');

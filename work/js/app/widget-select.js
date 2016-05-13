@@ -9,9 +9,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         createOptionGroups,
         multipleMenu,
         setValue,
-
+        itemClicked,
         initFilterWapper,
-        createButtons;
+        createButtons,
+        hideDropDown, showDropDown, toggleDropDown;
 
 
 
@@ -33,6 +34,60 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
     };
 
 
+    /*
+     *  Handles click-event on widget-li or widget-button:
+     */
+
+    itemClicked = function (item, node) {
+        var dropdown = document.getElementById(item.id),
+            filterbar = document.getElementById('filter_' + item.id),
+
+            li, button, checkbox,
+            itemId = item.id + node.id.substr(node.id.lastIndexOf('_'));
+
+
+        li = document.getElementById('li_' + itemId);
+        checkbox = document.getElementById('checkbox_' + itemId);
+        button = document.getElementById('button_' + itemId);
+
+        if (item.multiple) {
+            li.classList.toggle('w-select__item-multiple--active');
+            button.classList.toggle('w-button--filter-active');
+
+        } else {
+
+            hideDropDown(dropdown);
+            if (li.classList.contains('w-select__item--active')) {
+                li.classList.remove('w-select__item--active');
+                document.getElementById('select__value--' + item.id).textContent = item.title;
+            } else {
+                helper.forEach(dropdown.querySelectorAll('li.w-select__item--active'), function (oldactive) {
+                    oldactive.classList.remove('w-select__item--active');
+                });
+                li.classList.add('w-select__item--active');
+                document.getElementById('select__value--' + item.id).textContent = li.getAttribute('data-value');
+            }
+
+
+            if (button.classList.contains('w-button--filter-active')) {
+                button.classList.remove('w-button--filter-active');
+            } else {
+                helper.forEach(filterbar.querySelectorAll('button.w-button--filter-active'), function (oldactive) {
+                    oldactive.classList.remove('w-button--filter-active');
+                });
+                button.classList.add('w-button--filter-active');
+            }
+            
+            //document.getElementById('select__value--' + item.id).textContent = li.getAttribute('data-value');
+
+        }
+
+        checkbox.checked = li.className.indexOf('--active') >= 0;
+
+        setValue(dropdown);
+    };
+
+
 
     /*
      *  Creates the HTML LI elements for the dropdown
@@ -43,33 +98,44 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
      *      multiple: boolean; Creates a checkbox within the option
      */
 
-    createOptions = function (options, multiple) {
+    createOptions = function (options, item) {
         var frag = document.createDocumentFragment(),
             li;
 
         helper.forEach(options, function (option) {
-            var checkbox;
+            var checkboxWidget,
+                checkbox;
 
             li = document.createElement('li');
             frag.appendChild(li);
-            li.id = option.id;
-            li.className = multiple ? 'w-select__item-multiple' : 'w-select__item';
+            li.id = 'li_' + item.id + '_' + option.id;
+            li.className = item.multiple ? 'w-select__item-multiple' : 'w-select__item';
             li.setAttribute('data-value', option.value);
 
-            if (multiple) {
-                checkbox = wCheckbox.create({
-                    name: 'checkbox_' + option.id
-                });
-                li.appendChild(checkbox);
-                checkbox.querySelector('input.w-checkbox__checkbox').classList.add('w-select__item-checkbox');
-            }
+
+            checkboxWidget = wCheckbox.create({
+                id: 'checkbox_' + item.id + '_' + option.id,
+                css: (item.multiple ? '' : 'w-checkbox--hidden')
+            });
+            li.appendChild(checkboxWidget);
+            checkbox = checkboxWidget.querySelector('input.w-checkbox__checkbox');
+            checkbox.classList.add('w-select__item-checkbox');
+
 
             li.appendChild(document.createTextNode(option.text));
+
+            li.addEventListener('click', function (event) {
+                event.cancelBubble = true;
+                if (event.stopPropagation) {
+                    event.stopPropagation();
+                }
+                itemClicked(item, this);
+            });
         });
         return frag;
     };
-    
-    
+
+
     /*
      *  Each select-widget can have a bar with the activated options
      */
@@ -78,8 +144,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         var frag = document.createDocumentFragment(),
             mainwrapper = document.getElementById('filterBar'),
             wrapper,
-            button,
-            label;
+            button;
 
         if (!mainwrapper) {
             console.error('There should be a element with: id="filterBar" on the page...');
@@ -95,24 +160,26 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         wrapper.innerHTML = '';
 
         helper.forEach(item.options, function (option) {
-            label = document.createElement('label');
-            label.setAttribute('for', 'checkbox_' + option.id);
-            frag.appendChild(label);
+            
 
             button = wButton.create({
-                id: 'filterbutton_' + option.id,
+                id: 'button_' + item.id + '_' + option.id,
                 text: option.text,
                 css: 'w-button--filter'
             });
-            label.appendChild(button);
+            frag.appendChild(button);
+
+            button.addEventListener('click', function (event) {
+                itemClicked(item, this);
+            });
         });
 
         wrapper.appendChild(frag);
     };
 
-    
-    
-    
+
+
+
     /*
      *  Creates a span between the option of a group
      *      like a HTML optiongroup
@@ -161,21 +228,23 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         return frag;
     };
 
-    function hideDropDown(item) {
+    hideDropDown = function (item) {
+        print(item);
         item.classList.add('w-select__dropdown--hidden');
-    }
+        print(item);
+    };
 
-    function showDropDown(item) {
+    showDropDown = function (item) {
         item.classList.remove('w-select__dropdown--hidden');
-    }
+    };
 
-    function toggleDropDown(item) {
+    toggleDropDown = function (item) {
         if (item.className.indexOf('w-select__dropdown--hidden') >= 0) {
             showDropDown(item);
         } else {
             hideDropDown(item);
         }
-    }
+    };
 
 
 
@@ -192,14 +261,15 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         var div = document.createElement('div'),
             span = document.createElement('span'),
             dropdown = document.createElement('ul'),
-            pre = 'check_',
-            multiple = (item.multiple) || false,
             initialOption;
+
+        item.multiple = (item.hasOwnProperty('multiple') ? item.multiple : false);
 
         div.className = 'w-select';
 
         div.tabIndex = 0;
         div.appendChild(span);
+        span.id = 'select__value--' + item.id;
         span.className = 'w-select__value';
         span.textContent = item.title;
 
@@ -210,7 +280,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
 
 
         // insert toggle-all menu when multiple
-        if (multiple) {
+        if (item.multiple) {
             dropdown.appendChild(multipleMenu());
             dropdown.querySelector('span#select-all').addEventListener('click', function (event) {
                 helper.forEach(dropdown.querySelectorAll('li'), function (li) {
@@ -244,9 +314,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
          */
 
         if (item.groups) {
-            dropdown.appendChild(createOptionGroups(item.groups, multiple));
+            dropdown.appendChild(createOptionGroups(item.groups, item));
         } else {
-            dropdown.appendChild(createOptions(item.options, multiple));
+            dropdown.appendChild(createOptions(item.options, item));
         }
 
         createButtons(item);
@@ -291,44 +361,36 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
 
 
         /*
-         *  Attach event to all li child-nodes of the widget:
-         *      click: handles two types: multi OR not;
-         *      multi: toggles only the class of element
-         *      single: toggles with the previous active and hides the dropdown
-         */
+                helper.forEach(dropdown.querySelectorAll('li'), function (li) {
+                    li.addEventListener('click', (function (option) {
+                        return function (event) {
+                            var checkbox;
+                            event.cancelBubble = true;
+                            if (event.stopPropagation) {
+                                event.stopPropagation();
+                            }
+                            print('one: ' + item.multiple);
+                            if (item.multiple) {
+                                //option.classList.toggle('w-select__item-multiple--active');
+                                checkbox = option.querySelector('.w-select__item-checkbox');
+                                checkbox.checked = (option.className.indexOf('w-select__item-multiple--active') >= 0) ? true : false;
+                            } else {
+                                //helper.forEach(dropdown.querySelectorAll('li'), function (li) {
+                                //    li.classList.remove('w-select__item--active');
+                                //});
+                                //option.classList.add('w-select__item--active');
+                                span.textContent = option.textContent;
+                                hideDropDown(dropdown);
+                            }
 
-        helper.forEach(dropdown.querySelectorAll('li'), function (li) {
-            li.addEventListener('click', (function (item) {
-                return function (event) {
-                    var checkbox;
-                    event.cancelBubble = true;
-                    if (event.stopPropagation) {
-                        event.stopPropagation();
-                    }
-                    if (!multiple) {
-                        helper.forEach(dropdown.querySelectorAll('li'), function (li) {
-                            li.classList.remove('w-select__item--active');
-                        });
-                        item.classList.add('w-select__item--active');
-                        span.textContent = item.textContent;
-                        hideDropDown(dropdown);
-                    } else {
-                        item.classList.toggle('w-select__item-multiple--active');
-                        checkbox = item.querySelector('.w-select__item-checkbox');
-                        checkbox.checked = (item.className.indexOf('w-select__item-multiple--active') >= 0) ? true : false;
-                    }
-
-                    setValue(dropdown);
-                };
-            }(li)));
-        });
-
+                            setValue(dropdown);
+                        };
+                    }(li)));
+                });
+        */
         return div;
     };
 
-    function optionclicked() {
-
-    }
 
     /*
      *  Returns the active children from a dropdown
