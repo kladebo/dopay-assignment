@@ -109,24 +109,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
      */
 
     createForm = function () {
-        var formWrapper = document.getElementById('w-form');
-
-
-        /*
-         *  Append the 'form elements' to the 'form wrapper'
-         */
-
-        formWrapper.appendChild(createFormElements());
-    };
-
-
-
-
-
-
-
-    createFormElements = function () {
-        var frag = document.createDocumentFragment(),
+        var formWrapper = document.getElementById('w-form'),
+            frag = document.createDocumentFragment(),
             playerID,
             wildcardCheckbox,
             yearID,
@@ -209,20 +193,14 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         GP = wRadio.createGroup(
             aResult.getData().data.list_GP, {
-                groupname: 'GP-group',
+                id: 'GP',
                 label: 'GP',
-                zero: true
+                zero: true,
+                callback: function () {
+                    submitTimeOut();
+                }
             });
         frag.appendChild(GP);
-
-        helper.forEach(GP.querySelectorAll('input.w-radio__radio'), function (radio, index) {
-            if (index === 0) {
-                radio.checked = true;
-            }
-            radio.addEventListener('change', function () {
-                submitTimeOut();
-            });
-        });
 
 
 
@@ -236,6 +214,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             title: 'teamID',
             //initial: 1,
             options: aResult.getData().data.list_teamID,
+            buttons: true,
             callback: function () {
                 submitTimeOut();
             }
@@ -254,6 +233,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             title: 'startingPos',
             //initial: 1,
             options: aResult.getData().data.list_startingPos,
+            buttons: true,
             callback: function () {
                 submitTimeOut();
             }
@@ -268,12 +248,16 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
         gameNum = wCheckbox.createGroup(
             aResult.getData().data.list_gameNum, {
-                groupname: 'gameNum-group',
+                id: 'gameNum',
                 label: 'gameNum',
-                css: 'w-checkbox__group--block'
+                css: 'w-checkbox__group--block',
+                callback: function () {
+                    submitTimeOut();
+                }
             }
         );
         frag.appendChild(gameNum);
+
 
 
         /*
@@ -291,7 +275,12 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         });
 
 
-        return frag;
+
+        /*
+         *  Append the 'form elements' to the 'form wrapper'
+         */
+
+        formWrapper.appendChild(frag);
 
     };
 
@@ -348,11 +337,16 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             sortfield = 'b';
         }
 
+        if (document.getElementById('gameNum').getAttribute('value')) {
+            players = aResult.filterResultData(players, 'gameNum');
+            sortfield = 'c';
+        }
+
         if (document.getElementById('gameID').value !== '') {
             players = aResult.filterResultData(players, 'gameID');
         }
 
-        if (wRadio.getActive('GP-group').value !== '') {
+        if (document.getElementById('GP').getAttribute('value')) {
             players = aResult.filterResultData(players, 'GP');
         }
 

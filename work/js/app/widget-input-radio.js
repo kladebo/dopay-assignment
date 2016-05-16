@@ -4,8 +4,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
     'use strict';
 
     var create,
-        createGroup,
-        getActive;
+        createGroup;
+    //      getActive;
 
     //
     // specs is a object with the following keys:
@@ -50,8 +50,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
         return div;
     };
-    
-    
+
+
 
     /*
      *  items:
@@ -60,7 +60,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
      *
      *  specs:
      *      is an object with the following keys:
-     *      - groupName: !!!
+     *      - id:
      *      - zero: creates a extra radio with the label:'none' and no id!
      *      - name: for naming the group
      *      - label: creates a header above the group
@@ -68,13 +68,16 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     createGroup = function (items, specs) {
         var wrapper = document.createElement('div'),
+            radio,
             label,
-            name;
+            groupname = specs.id + '_group';
 
         wrapper.className = 'w-radio__group';
 
-        if (!specs.hasOwnProperty('groupname')) {
-            console.error('a radiogroup needs a name');
+        if (specs.hasOwnProperty('id')) {
+            wrapper.id = specs.id;
+        } else {
+            console.error('a radiogroup needs a id');
         }
 
         if (specs.hasOwnProperty('label')) {
@@ -86,54 +89,77 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('zero') && specs.zero === true) {
             wrapper.appendChild(create({
                 value: '',
-                name: specs.groupname,
+                name: groupname,
                 label: 'none'
             }));
         }
 
+        function setValue() {
+            var radios,
+                active = [];
+
+            radios = document.getElementsByName(groupname);
+            helper.forEach(radios, function (radio) {
+                if (radio.checked) {
+                    active.push(radio.value);
+                }
+            });
+            document.getElementById(specs.id).setAttribute('value', active);
+
+            if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
+                specs.callback();
+            }
+        }
+
         helper.forEach(items, function (item) {
-            wrapper.appendChild(create({
-                value: item,
-                name: specs.groupname,
-                label: item
-            }));
+            radio = create({
+                id: item.id,
+                label: item.label,
+                value: item.value,
+                name: groupname
+            });
+            wrapper.appendChild(radio);
+
+            radio.addEventListener('click', function () {
+                setValue();
+            });
         });
         return wrapper;
     };
 
-    
+
     //
     //  returns the active radio from a group of radios
     //
     //  TODO: always use name
     //
 
-    getActive = function (groupName) {
-        var i, j,
-            items = document.getElementsByName(groupName);
-
-        if (items.length) {
-            for (i = 0, j = items.length; i < j; i += 1) {
-                if (items[i].checked) {
-                    return items[i];
-                }
-            }
-
-        } else {
-            items = document.getElementById(groupName);
-            if (items && items.checked) {
-                return items;
-            }
-        }
-        return {
-            id: ''
-        };
-    };
+    //    getActive = function (groupName) {
+    //        var i, j,
+    //            items = document.getElementsByName(groupName);
+    //
+    //        if (items.length) {
+    //            for (i = 0, j = items.length; i < j; i += 1) {
+    //                if (items[i].checked) {
+    //                    return items[i];
+    //                }
+    //            }
+    //
+    //        } else {
+    //            items = document.getElementById(groupName);
+    //            if (items && items.checked) {
+    //                return items;
+    //            }
+    //        }
+    //        return {
+    //            id: ''
+    //        };
+    //    };
 
     return {
         //create: create,
-        createGroup: createGroup,
-        getActive: getActive
+        createGroup: createGroup
+            //        getActive: getActive
     };
 
 });

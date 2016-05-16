@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio'], function (print, helper, wCheckbox, wRadio) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select'], function (print, helper, wCheckbox, wRadio, wSelect) {
     'use strict';
 
     var origData,
@@ -15,7 +15,25 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         addHiglight,
         filterResultData;
 
-
+    resultObj = {
+        sortField: '',
+        sortOrder: '', // a OR d
+        pageViewList: wSelect.makeSelectList([10, 25, 50, 100]),
+        pageViewView: 10,
+        getPageView: function () {
+            var curPageView = parseInt(this.pageViewView, 10);
+            return {
+                view: curPageView,
+                index: this.pageViewList.filter(function (item){
+                    if(item.value === curPageView){
+                        return item;
+                    }
+                }).map(function(item){
+                    return item.id;
+                })
+            };
+        }
+    };
 
     /*
      *  Initializes the document with containers
@@ -26,12 +44,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             resultWrapper = document.createElement('div'),
             resultHeader = document.createElement('div'),
             resultBody = document.createElement('div');
-
-        resultObj = resultObj || {};
-        resultObj.pageView = 10;
-        resultObj.pageStart = 0;
-        resultObj.sortField = '';
-        resultObj.sortOrder = ''; // a OR d
 
         frag.appendChild(resultWrapper);
         resultWrapper.id = 'wResult';
@@ -57,14 +69,31 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
     createViewHeader = function (data) {
         var frag = document.createDocumentFragment(),
             wrapper = document.createElement('div'),
-            text = '#0# items found. Total files: #1# searched.';
+            text = '#0# items found. Total files: #1# searched.',
+            pageViewWidget;
 
         frag.appendChild(wrapper);
         wrapper.className = 'w-result__paging-info';
 
         text = text.replace('#0#', data.length);
         text = text.replace('#1#', resultObj.totalItems());
+
         wrapper.appendChild(document.createTextNode(text));
+        
+        pageViewWidget = wSelect.createSelect({
+            id: 'pageView',
+            title: 'pageView',
+            initial: resultObj.getPageView().index[0],
+            classic: true,
+            options: resultObj.pageViewList,
+            callback: function () {
+                resultObj.pageViewView = document.getElementById('pageView').getAttribute('value');
+                
+                setTimeout(createView(resultObj.viewdata), 1000);
+            }
+        });
+
+        frag.appendChild(pageViewWidget);
 
         return frag;
     };
@@ -163,7 +192,13 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             p, q,
             i, j, player, value, input;
 
+
+
         for (p = 0, i = collection.length; p < i; p += 1) {
+
+            if (resultObj.getPageView().view === p) {
+                break;
+            }
             tr = document.createElement('tr');
             tbody.appendChild(tr);
 
@@ -269,6 +304,14 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             return player.b.toString().indexOf(document.getElementById('yearID').value) >= 0;
         }
 
+        function gameNum(player) {
+            var active = ',' + document.getElementById('gameNum').getAttribute('value') + ',';
+            if (!player.hasOwnProperty('c')) {
+                return false;
+            }
+            return active.indexOf(',' + player.c + ',') > -1;
+        }
+
         function gameID(player) {
             if (!player.hasOwnProperty('d')) {
                 return false;
@@ -277,10 +320,11 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         }
 
         function GP(player) {
+            var active = ',' + document.getElementById('GP').getAttribute('value') + ',';
             if (!player.hasOwnProperty('g')) {
                 return false;
             }
-            return parseInt(player.g, 10) === parseInt(wRadio.getActive('GP-group').value, 10);
+            return active.indexOf(',' + player.g + ',') > -1;
         }
 
         function teamID(player) {
@@ -323,6 +367,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         if (type === 'startingPos') {
             type = startingPos;
         }
+        if (type === 'gameNum') {
+            type = gameNum;
+        }
 
 
 
@@ -355,20 +402,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     var i, j, list, item;
                     origData = response;
 
-                    function makeSelectList(list) {
-                        for (i = 0, j = list.length; i < j; i += 1) {
-                            item = {};
-                            item.id = i;
-                            item.value = list[i];
-                            item.label = list[i];
 
-                            list[i] = item;
-                        }
-                        return list;
-                    }
 
                     function makeCheckList(list) {
-                        return makeSelectList(list);
+                        return wSelect.makeSelectList(list);
                     }
 
 
@@ -394,6 +431,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     };
 
 
+
+
                     /* list teamIDs */
 
                     resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
@@ -404,7 +443,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         }
                     }).unique().sort();
 
-                    makeSelectList(resultObj.data.list_teamID);
+                    wSelect.makeSelectList(resultObj.data.list_teamID);
 
 
                     /* list yearIDs */
@@ -455,6 +494,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         return player.g;
                     }).unique().sort(helper.byInt);
 
+                    makeCheckList(resultObj.data.list_GP);
+
 
                     /* list startingPoss */
 
@@ -465,7 +506,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
                     }).unique().sort(helper.byInt);
 
-                    makeSelectList(resultObj.data.list_startingPos);
+                    wSelect.makeSelectList(resultObj.data.list_startingPos);
 
 
                     /* create the searchForm */

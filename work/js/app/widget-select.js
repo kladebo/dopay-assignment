@@ -15,6 +15,20 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         hideDropDown, showDropDown, toggleDropDown;
 
 
+    function makeSelectList(list) {
+        var i,j,
+            item;
+        for (i = 0, j = list.length; i < j; i += 1) {
+            item = {};
+            item.id = i;
+            item.value = list[i];
+            item.label = list[i];
+
+            list[i] = item;
+        }
+        return list;
+    }
+
 
     initFilterWapper = function () {
         var wrapper = document.createElement('div');
@@ -43,7 +57,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
             filterbar = document.getElementById('filter_' + item.id),
 
             li, button, checkbox,
-            itemId = item.id + node.id.substr(node.id.lastIndexOf('_'));
+            itemId = item.id + node.id.substr(node.id.lastIndexOf('_')),
+            classic;
 
 
         li = document.getElementById('li_' + itemId);
@@ -57,7 +72,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         } else {
 
             hideDropDown(dropdown);
-            if (li.classList.contains('w-select__item--active')) {
+
+            classic = item.hasOwnProperty('classic') && item.classic === true;
+
+            if (!classic && li.classList.contains('w-select__item--active')) {
                 li.classList.remove('w-select__item--active');
                 document.getElementById('select__value--' + item.id).textContent = item.title;
             } else {
@@ -68,23 +86,21 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
                 document.getElementById('select__value--' + item.id).textContent = li.getAttribute('data-value');
             }
 
-
-            if (button.classList.contains('w-button--filter-active')) {
-                button.classList.remove('w-button--filter-active');
-            } else {
-                helper.forEach(filterbar.querySelectorAll('button.w-button--filter-active'), function (oldactive) {
-                    oldactive.classList.remove('w-button--filter-active');
-                });
-                button.classList.add('w-button--filter-active');
+            if (item.hasOwnProperty('buttons') && item.buttons === true) {
+                if (button.classList.contains('w-button--filter-active')) {
+                    button.classList.remove('w-button--filter-active');
+                } else {
+                    helper.forEach(filterbar.querySelectorAll('button.w-button--filter-active'), function (oldactive) {
+                        oldactive.classList.remove('w-button--filter-active');
+                    });
+                    button.classList.add('w-button--filter-active');
+                }
             }
-            
-            //document.getElementById('select__value--' + item.id).textContent = li.getAttribute('data-value');
-
         }
 
         checkbox.checked = li.className.indexOf('--active') >= 0;
 
-        setValue(dropdown);
+        setValue(dropdown, item);
     };
 
 
@@ -99,12 +115,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
      */
 
     createOptions = function (options, item) {
-        var frag = document.createDocumentFragment(),
-            li;
+        var frag = document.createDocumentFragment();
 
-        helper.forEach(options, function (option) {
+        helper.forEach(options, function (option, index) {
             var checkboxWidget,
-                checkbox;
+                checkbox,
+                li;
 
             li = document.createElement('li');
             frag.appendChild(li);
@@ -131,6 +147,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
                 }
                 itemClicked(item, this);
             });
+
         });
         return frag;
     };
@@ -160,7 +177,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         wrapper.innerHTML = '';
 
         helper.forEach(item.options, function (option) {
-            
+
 
             button = wButton.create({
                 id: 'button_' + item.id + '_' + option.id,
@@ -229,9 +246,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
     };
 
     hideDropDown = function (item) {
-        print(item);
         item.classList.add('w-select__dropdown--hidden');
-        print(item);
     };
 
     showDropDown = function (item) {
@@ -254,6 +269,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
      *      - id: will be given to the UL
      *      - title: multiselect uses  the title as the display value
      *      - groups / options: the list from which the options will be created
+     *      - buttons: boolean, adds buttons to the filterbar
      *      - callback: function to call after a change
      */
 
@@ -288,7 +304,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
                     li.querySelector('.w-select__item-checkbox').checked = true;
                 });
 
-                setValue(dropdown);
+                setValue(dropdown, item);
             });
             dropdown.querySelector('span#select-none').addEventListener('click', function (event) {
                 helper.forEach(dropdown.querySelectorAll('li'), function (li) {
@@ -296,7 +312,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
                     li.querySelector('.w-select__item-checkbox').checked = false;
                 });
 
-                setValue(dropdown);
+                setValue(dropdown, item);
             });
             dropdown.addEventListener('click', function (event) {
                 event.cancelBubble = true;
@@ -319,7 +335,26 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
             dropdown.appendChild(createOptions(item.options, item));
         }
 
-        createButtons(item);
+        if (item.hasOwnProperty('buttons')) {
+            if (item.buttons === true) {
+                createButtons(item);
+            }
+        }
+
+        if (item.hasOwnProperty('initial')) {
+            if (typeof item.initial !== 'undefined') {
+                helper.forEach(dropdown.querySelectorAll('li'), function (li, index) {
+                    if (index === item.initial) {
+                        li.classList.add(item.multiple ? 'w-select__item-multiple--active' : 'w-select__item--active');
+                        if (!item.multiple) {
+                            span.textContent = li.getAttribute('data-value');
+                        }
+                    }
+                });
+            }
+        }
+
+
 
         /*
          *  Attaches the following events to the main widget:
@@ -359,35 +394,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         });
 
 
-
-        /*
-                helper.forEach(dropdown.querySelectorAll('li'), function (li) {
-                    li.addEventListener('click', (function (option) {
-                        return function (event) {
-                            var checkbox;
-                            event.cancelBubble = true;
-                            if (event.stopPropagation) {
-                                event.stopPropagation();
-                            }
-                            print('one: ' + item.multiple);
-                            if (item.multiple) {
-                                //option.classList.toggle('w-select__item-multiple--active');
-                                checkbox = option.querySelector('.w-select__item-checkbox');
-                                checkbox.checked = (option.className.indexOf('w-select__item-multiple--active') >= 0) ? true : false;
-                            } else {
-                                //helper.forEach(dropdown.querySelectorAll('li'), function (li) {
-                                //    li.classList.remove('w-select__item--active');
-                                //});
-                                //option.classList.add('w-select__item--active');
-                                span.textContent = option.textContent;
-                                hideDropDown(dropdown);
-                            }
-
-                            setValue(dropdown);
-                        };
-                    }(li)));
-                });
-        */
         return div;
     };
 
@@ -396,7 +402,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
      *  Returns the active children from a dropdown
      */
 
-    setValue = function (dropdown) {
+    setValue = function (dropdown, item) {
         var i, j,
             options,
             optionButtons,
@@ -413,11 +419,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         }
         dropdown.setAttribute('value', active);
 
-        // createButtons(dropdown);
-
-        require(['app/search'], function (wSearch) {
-            wSearch.submitTimeOut(2000);
-        });
+        if (item.hasOwnProperty('callback') && typeof item.callback === 'function') {
+            item.callback();
+        }
+        //        require(['app/search'], function (wSearch) {
+        //            wSearch.submitTimeOut(2000);
+        //        });
 
         return active;
 
@@ -426,6 +433,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
     return {
         createSelect: createSelect,
         disableSelect: disableSelect,
-        initFilterWapper: initFilterWapper
+        initFilterWapper: initFilterWapper,
+        makeSelectList: makeSelectList
     };
 });
