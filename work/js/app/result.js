@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select'], function (print, helper, wCheckbox, wRadio, wSelect) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select', 'app/widget-button'], function (print, helper, wCheckbox, wRadio, wSelect, wButton) {
     'use strict';
 
     var origData,
@@ -18,20 +18,75 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
     resultObj = {
         sortField: '',
         sortOrder: '', // a OR d
+        pageStart: 0,
         pageViewList: wSelect.makeSelectList([10, 25, 50, 100]),
         pageViewView: 10,
         getPageView: function () {
             var curPageView = parseInt(this.pageViewView, 10);
             return {
                 view: curPageView,
-                index: this.pageViewList.filter(function (item){
-                    if(item.value === curPageView){
+                index: this.pageViewList.filter(function (item) {
+                    if (item.value === curPageView) {
                         return item;
                     }
-                }).map(function(item){
+                }).map(function (item) {
                     return item.id;
-                })
+                })[0]
             };
+        },
+        getPageNavigation: function () {
+            var frag = document.createDocumentFragment(),
+                button,
+                wrapper = document.createElement('div'),
+
+                i, j,
+                max = Math.ceil(this.viewdata.length / this.pageViewView);
+
+            frag.appendChild(wrapper);
+
+            button = wButton.create({
+                id: 'first',
+                label: '<<'
+            });
+            wrapper.appendChild(button);
+
+            button = wButton.create({
+                id: 'previous',
+                label: '<'
+            });
+            wrapper.appendChild(button);
+
+            for (i = 0, j = max; i < j; i += 1) {
+                button = wButton.create({
+                    id: i,
+                    label: i
+                });
+                wrapper.appendChild(button);
+            }
+            button = wButton.create({
+                id: 'next',
+                label: '>'
+            });
+            wrapper.appendChild(button);
+
+            button = wButton.create({
+                id: 'last',
+                label: '>>'
+            });
+            wrapper.appendChild(button);
+
+            helper.forEach(wrapper.querySelectorAll('button'), function (button){
+                button.addEventListener('click', function(){
+                    print(button.id);
+                    resultObj.pageStart = (parseInt(button.id, 10)*parseInt(resultObj.pageViewView, 10));
+                    createView(resultObj.viewdata);
+                });
+            });
+
+            return frag;
+        },
+        totalItems: function () {
+            return this.data.data.players.length;
         }
     };
 
@@ -79,21 +134,24 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         text = text.replace('#1#', resultObj.totalItems());
 
         wrapper.appendChild(document.createTextNode(text));
-        
+
+
         pageViewWidget = wSelect.createSelect({
             id: 'pageView',
             title: 'pageView',
-            initial: resultObj.getPageView().index[0],
+            initial: resultObj.getPageView().index,
             classic: true,
             options: resultObj.pageViewList,
             callback: function () {
                 resultObj.pageViewView = document.getElementById('pageView').getAttribute('value');
-                
+
                 setTimeout(createView(resultObj.viewdata), 1000);
             }
         });
 
         frag.appendChild(pageViewWidget);
+
+        frag.appendChild(resultObj.getPageNavigation());
 
         return frag;
     };
@@ -192,7 +250,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             p, q,
             i, j, player, value, input;
 
-
+        print(resultObj.pageStart);
 
         for (p = 0, i = collection.length; p < i; p += 1) {
 
@@ -426,11 +484,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         return resultObj.data.data.players;
                     };
 
-                    resultObj.totalItems = function () {
-                        return origData.players.length;
-                    };
-
-
 
 
                     /* list teamIDs */
@@ -571,6 +624,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         getData: getData,
         createView: createView,
         filterResultData: filterResultData,
-        sortData: sortData
+        sortData: sortData,
+        resultObj: resultObj
     };
 });
