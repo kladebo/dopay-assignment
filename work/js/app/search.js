@@ -365,7 +365,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         /*
          *  Create new View ONLY when there is an active-filter
          */
-aResult.resultObj.pageStart = 0;
+        aResult.resultObj.pageStart = 0;
+        
         if (players.length !== aResult.getData().totalItems()) {
             aResult.createView(aResult.sortData(players, {
                 field: sortfield,

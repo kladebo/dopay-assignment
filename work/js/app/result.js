@@ -40,45 +40,86 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 wrapper = document.createElement('div'),
 
                 i, j,
-                max = Math.ceil(this.viewdata.length / this.pageViewView);
 
+                totalbuttons = Math.ceil(this.viewdata.length / this.pageViewView),
+                show = 7,
+                startbutton,
+                endbutton,
+                firstPage,
+                lastPage;
+
+            startbutton = Math.ceil(this.pageStart / this.pageViewView) - Math.floor(show / 2);
+            if (startbutton < 0) {
+                startbutton = 0;
+            }
+            endbutton = startbutton + show;
+
+            if (endbutton > totalbuttons) {
+                endbutton = totalbuttons;
+                startbutton = endbutton - show;
+                if (startbutton < 0) {
+                    startbutton = 0;
+                }
+            }
+
+            firstPage = this.pageStart === 0;
+            lastPage = this.pageStart + this.pageViewView > this.viewdata.length;
+            
             frag.appendChild(wrapper);
+            wrapper.className = 'w-result__pageNav';
+            
+            if(totalbuttons === 1){
+                return frag;
+            }
 
             button = wButton.create({
-                id: 'first',
-                label: '<<'
+                id: 0,
+                label: 'First',
+                css: firstPage ? 'w-button__pageNav--disabled' : '',
+                disabled: firstPage
             });
             wrapper.appendChild(button);
 
             button = wButton.create({
-                id: 'previous',
-                label: '<'
+                id: Math.ceil(this.pageStart / this.pageViewView)-1,
+                label: '&nbsp;&laquo;&nbsp;',
+                css: firstPage ? 'w-button__pageNav--disabled' : '',
+                disabled: firstPage
             });
             wrapper.appendChild(button);
 
-            for (i = 0, j = max; i < j; i += 1) {
+            for (i = startbutton, j = endbutton; i < j; i += 1) {
                 button = wButton.create({
                     id: i,
-                    label: i
+                    label: i+1,
+                    css: i === Math.ceil(this.pageStart / this.pageViewView) ? 'w-button__pageNav--active' : ''
                 });
                 wrapper.appendChild(button);
             }
             button = wButton.create({
-                id: 'next',
-                label: '>'
+                id: Math.ceil(this.pageStart / this.pageViewView)+1,
+                label: '&nbsp;&raquo;&nbsp;',
+                css: lastPage ? 'w-button__pageNav--disabled' : '',
+                disabled: lastPage
             });
             wrapper.appendChild(button);
 
             button = wButton.create({
-                id: 'last',
-                label: '>>'
+                id: totalbuttons-1,
+                label: 'Last',
+                css: lastPage ? 'w-button__pageNav--disabled' : '',
+                disabled: lastPage
             });
             wrapper.appendChild(button);
 
-            helper.forEach(wrapper.querySelectorAll('button'), function (button){
-                button.addEventListener('click', function(){
-                    print(button.id);
-                    resultObj.pageStart = (parseInt(button.id, 10)*parseInt(resultObj.pageViewView, 10));
+            helper.forEach(wrapper.querySelectorAll('button'), function (button) {
+                button.classList.add('w-button__pageNav');
+                button.addEventListener('click', function () {
+                    if(this.className.indexOf('w-button__pageNav--active') > -1){
+                        return false;
+                    }
+                    resultObj.pageStart = (parseInt(button.id, 10) * parseInt(resultObj.pageViewView, 10));
+
                     createView(resultObj.viewdata);
                 });
             });
@@ -143,7 +184,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             classic: true,
             options: resultObj.pageViewList,
             callback: function () {
-                resultObj.pageViewView = document.getElementById('pageView').getAttribute('value');
+                resultObj.pageViewView = parseInt(document.getElementById('pageView').getAttribute('value'), 10);
 
                 setTimeout(createView(resultObj.viewdata), 1000);
             }
@@ -228,6 +269,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     data = sortData(resultObj.viewdata, {
                         field: sortfield
                     });
+                resultObj.pageStart = 0;
                 createView(data);
             });
         });
@@ -250,11 +292,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             p, q,
             i, j, player, value, input;
 
-        print(resultObj.pageStart);
 
-        for (p = 0, i = collection.length; p < i; p += 1) {
+        for (p = resultObj.pageStart, i = collection.length; p < i; p += 1) {
 
-            if (resultObj.getPageView().view === p) {
+            if (resultObj.getPageView().view + resultObj.pageStart === p) {
                 break;
             }
             tr = document.createElement('tr');

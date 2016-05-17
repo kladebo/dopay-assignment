@@ -33,18 +33,31 @@
     background: $app-accent-color01;
     border-color: $app-accent-color01;
 }
-.w-button--filter{
+.w-button--filter {
     display: none;
     font-size: .8em;
     padding: 0 .3em;
-    &:before{
+    &:before {
         content: '\2715';
         font-size: 1em;
-//        font-weight: bold;
+        //        font-weight: bold;
         line-height: 0;
         margin-right: .2em;
     }
 }
-.w-button--filter-active{
+.w-button--filter-active {
     display: inline-block;
+}
+.w-button__pageNav {
+    color: white;
+    background: $app-accent-color01;
+    border-color: $app-accent-color01;
+}
+.w-button__pageNav--active {
+    background: $app-accent-color02;
+    border-color: $app-accent-color02;
+}
+.w-button__pageNav--disabled {
+    background: white;
+    color: $app-accent-color01;
 }

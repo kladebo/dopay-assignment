@@ -22,7 +22,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('css')) {
             button.className += ' ' + specs.css;
         }
-        button.textContent = label;
+        if (specs.hasOwnProperty('disabled')) {
+            if (specs.disabled === true) {
+                button.disabled = true;
+            }
+        }
+        button.innerHTML = label;
 
         if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
             button.addEventListener('click', function () {
