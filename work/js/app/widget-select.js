@@ -282,6 +282,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         item.multiple = (item.hasOwnProperty('multiple') ? item.multiple : false);
 
         div.className = 'w-select';
+        if(item.hasOwnProperty('css')){
+            div.className += ' '+item.css;
+        }
 
         div.tabIndex = 0;
         div.appendChild(span);
@@ -292,6 +295,11 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         div.appendChild(dropdown);
         dropdown.id = item.id;
         dropdown.className = 'w-select__dropdown';
+        if(item.hasOwnProperty('dropup')){
+            if(item.dropup === true){
+                dropdown.classList.add('w-select--dropup');
+            }
+        }
         dropdown.classList.add('w-select__dropdown--hidden');
 
 

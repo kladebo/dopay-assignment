@@ -28,10 +28,19 @@
  * Button modifiers
  */
 
+.w-button--small {
+    padding: .3em .6em;
+}
 .w-button--submit {
     color: white;
     background: $app-accent-color01;
     border-color: $app-accent-color01;
+}
+.w-button--close {
+    &:before {
+        content: '\2715';
+        line-height: 0;
+    }
 }
 .w-button--filter {
     display: none;
@@ -52,12 +61,15 @@
     color: white;
     background: $app-accent-color01;
     border-color: $app-accent-color01;
+    @extend .w-button--small;
 }
 .w-button__pageNav--active {
+    font-weight: bold;
+    color: $app-accent-color01;
     background: $app-accent-color02;
-    border-color: $app-accent-color02;
+    //border-color: $app-accent-color02;
 }
 .w-button__pageNav--disabled {
     background: white;
-    color: $app-accent-color01;
+    color: $app-text-color;
 }

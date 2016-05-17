@@ -12,10 +12,31 @@ body {
     color: $app-text-color;
     font-family: "Noto Sans";
     font-size: 1em;
+    //position: relative;
 }
-
-
-
+.app__overlay {
+    background: rgba($app-accent-color01, .8);
+    bottom: 0;
+    display: none;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 999;
+}
+.app__overlay--active {
+    display: block;
+}
+.app__overlay-body {
+    color: white;
+    margin-top: 4em;
+}
+.app__overlay-body-inner{
+    width: 60%;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1em;
+}
 /* ==========================================================================
    Imports:
    ========================================================================== */

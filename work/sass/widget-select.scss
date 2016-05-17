@@ -23,10 +23,10 @@
  * Widget's modifiers
  */
 
-.w-select--small {
-    margin-right: .4em;
-    width: 12.2em;
+.w-select--small .w-select--dropup{
+    bottom: 2.6em;
 }
+
 .w-select--wide {
     width: 100%;
 }
@@ -37,6 +37,21 @@
     cursor: not-allowed;
 }
 
+
+.w-select--small .w-select__value{
+    padding: .3em 2.4em .3em .5em;
+    &:after {
+        top: 0;
+    }
+}
+.w-select--small .w-select__item,
+.w-select--small .w-select__item-multiple{
+    padding: 0;
+}
+
+.w-select--small .w-select--dropup{
+    bottom: 2.2em;
+}
 /* ==========================================================================
    Value-box: the padding-right is for the :after
    ========================================================================== */

@@ -10,10 +10,13 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         createTable,
         createTableHeader,
         createTableData,
+        createTableAdmin,
         getData,
         sortData,
         addHiglight,
         filterResultData;
+
+
 
     resultObj = {
         sortField: '',
@@ -21,6 +24,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         pageStart: 0,
         pageViewList: wSelect.makeSelectList([10, 25, 50, 100]),
         pageViewView: 10,
+        selectedPlayers: [],
         getPageView: function () {
             var curPageView = parseInt(this.pageViewView, 10);
             return {
@@ -64,11 +68,11 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
             firstPage = this.pageStart === 0;
             lastPage = this.pageStart + this.pageViewView > this.viewdata.length;
-            
+
             frag.appendChild(wrapper);
             wrapper.className = 'w-result__pageNav';
-            
-            if(totalbuttons === 1){
+
+            if (totalbuttons === 1) {
                 return frag;
             }
 
@@ -81,7 +85,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             wrapper.appendChild(button);
 
             button = wButton.create({
-                id: Math.ceil(this.pageStart / this.pageViewView)-1,
+                id: Math.ceil(this.pageStart / this.pageViewView) - 1,
                 label: '&nbsp;&laquo;&nbsp;',
                 css: firstPage ? 'w-button__pageNav--disabled' : '',
                 disabled: firstPage
@@ -91,13 +95,13 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             for (i = startbutton, j = endbutton; i < j; i += 1) {
                 button = wButton.create({
                     id: i,
-                    label: i+1,
+                    label: i + 1,
                     css: i === Math.ceil(this.pageStart / this.pageViewView) ? 'w-button__pageNav--active' : ''
                 });
                 wrapper.appendChild(button);
             }
             button = wButton.create({
-                id: Math.ceil(this.pageStart / this.pageViewView)+1,
+                id: Math.ceil(this.pageStart / this.pageViewView) + 1,
                 label: '&nbsp;&raquo;&nbsp;',
                 css: lastPage ? 'w-button__pageNav--disabled' : '',
                 disabled: lastPage
@@ -105,7 +109,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             wrapper.appendChild(button);
 
             button = wButton.create({
-                id: totalbuttons-1,
+                id: totalbuttons - 1,
                 label: 'Last',
                 css: lastPage ? 'w-button__pageNav--disabled' : '',
                 disabled: lastPage
@@ -115,7 +119,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             helper.forEach(wrapper.querySelectorAll('button'), function (button) {
                 button.classList.add('w-button__pageNav');
                 button.addEventListener('click', function () {
-                    if(this.className.indexOf('w-button__pageNav--active') > -1){
+                    if (this.className.indexOf('w-button__pageNav--active') > -1) {
                         return false;
                     }
                     resultObj.pageStart = (parseInt(button.id, 10) * parseInt(resultObj.pageViewView, 10));
@@ -126,10 +130,41 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
             return frag;
         },
+        toggleRow: function (id) {
+            //print(id);
+            var widgetId = helper.widgetId(id),
+                checkbox = document.getElementById('player_' + widgetId),
+                row = document.getElementById('row_' + widgetId),
+
+                adminrow = document.getElementById('w-result__admin'),
+                activeCheckboxes = [];
+
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                row.classList.add('w-result__row--active');
+            } else {
+                row.classList.remove('w-result__row--active');
+            }
+
+            helper.forEach(document.getElementsByName('activatePlayer'), function (checkbox) {
+                if (checkbox.checked) {
+                    activeCheckboxes.push(helper.widgetId(checkbox.id));
+                }
+            });
+            print(activeCheckboxes);
+            if (activeCheckboxes.length) {
+                adminrow.classList.add('w-result__admin--active');
+            } else {
+                adminrow.classList.remove('w-result__admin--active');
+            }
+            this.selectedPlayers = activeCheckboxes;
+        },
         totalItems: function () {
             return this.data.data.players.length;
         }
     };
+
+
 
     /*
      *  Initializes the document with containers
@@ -139,7 +174,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         var frag = document.createDocumentFragment(),
             resultWrapper = document.createElement('div'),
             resultHeader = document.createElement('div'),
-            resultBody = document.createElement('div');
+            resultBody = document.createElement('div'),
+            pageOverlay = document.createElement('div'),
+            overlayBody = document.createElement('div'),
+            button;
 
         frag.appendChild(resultWrapper);
         resultWrapper.id = 'wResult';
@@ -153,6 +191,24 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         resultBody.id = 'wResultBody';
         resultBody.className = 'w-result__body';
 
+        document.body.appendChild(pageOverlay);
+        pageOverlay.id = 'app-overlay';
+        pageOverlay.className = 'app__overlay';
+
+        button = wButton.create({
+            id: 'close-admin-modal',
+            css: 'w-button--close',
+            callback:function () {
+                pageOverlay.classList.remove('app__overlay--active');
+                overlayBody.innerHTML = '';
+            }
+        });
+        pageOverlay.appendChild(button);
+        
+        pageOverlay.appendChild(overlayBody);
+        overlayBody.id = 'app__overlay-body';
+        overlayBody.className = 'app__overlay-body';
+
         document.body.appendChild(frag);
     };
 
@@ -165,7 +221,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
     createViewHeader = function (data) {
         var frag = document.createDocumentFragment(),
             wrapper = document.createElement('div'),
-            text = '#0# items found. Total files: #1# searched.',
+            text = '#0# items found. Total files: #1# searched. Showing result #2# to #3#.',
             pageViewWidget;
 
         frag.appendChild(wrapper);
@@ -173,6 +229,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
         text = text.replace('#0#', data.length);
         text = text.replace('#1#', resultObj.totalItems());
+        text = text.replace('#2#', resultObj.pageStart + 1);
+        text = text.replace('#3#', ((resultObj.pageStart + resultObj.pageViewView) < resultObj.viewdata.length ? (resultObj.pageStart + resultObj.pageViewView) : resultObj.viewdata.length));
 
         wrapper.appendChild(document.createTextNode(text));
 
@@ -185,9 +243,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             options: resultObj.pageViewList,
             callback: function () {
                 resultObj.pageViewView = parseInt(document.getElementById('pageView').getAttribute('value'), 10);
-
+                resultObj.pageStart = 0;
                 setTimeout(createView(resultObj.viewdata), 1000);
-            }
+            },
+            css: 'w-select--small'
         });
 
         frag.appendChild(pageViewWidget);
@@ -210,6 +269,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
         table.appendChild(createTableHeader());
         table.appendChild(createTableData(data));
+        table.appendChild(createTableAdmin());
 
         return table;
     };
@@ -242,7 +302,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
             checkboxes = document.getElementsByName('activatePlayer');
             for (i = 0, j = checkboxes.length; i < j; i += 1) {
-                checkboxes[i].checked = this.checked;
+                checkboxes[i].checked = !this.checked;
+                // updateView
+                resultObj.toggleRow(checkboxes[i].id);
             }
         });
 
@@ -290,26 +352,35 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
             headers = resultObj.data.headers(),
             p, q,
-            i, j, player, value, input;
+            i, j, player, value, input, checkbox;
+
 
 
         for (p = resultObj.pageStart, i = collection.length; p < i; p += 1) {
 
+            /*
+             *  Only show the results within the view-range
+             */
             if (resultObj.getPageView().view + resultObj.pageStart === p) {
                 break;
             }
+
             tr = document.createElement('tr');
             tbody.appendChild(tr);
 
             tr.className = 'w-result__row';
+            if (p % 2 === 0) {
+                tr.className += ' w-result__row--toggle';
+            }
             tr.id = 'row_' + collection[p].dataId;
 
             td = document.createElement('td');
             tr.appendChild(td);
-            td.appendChild(wCheckbox.create({
+            checkbox = wCheckbox.create({
                 id: 'player_' + collection[p].dataId,
                 name: 'activatePlayer'
-            }));
+            });
+            td.appendChild(checkbox);
 
             for (q = 0, j = headers.length; q < j; q += 1) {
                 td = document.createElement('td');
@@ -324,7 +395,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     value = player[headers[q].id];
 
 
-                    /* Higlights the data if checkbox is checked */
+                    /* Higlights the data if highlight-checkbox is checked */
 
                     if (document.getElementById('highlight').checked && input && input.value !== '') {
                         value = addHiglight(input.value, value);
@@ -336,6 +407,88 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 }
             }
         }
+
+
+        /*
+         *  Add events to the checkboxes
+         *
+         */
+        helper.forEach(tbody.querySelectorAll('input.w-checkbox__checkbox'), function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                event.cancelBubble = true;
+                if (event.stopPropagation) {
+                    event.stopPropagation();
+                }
+                resultObj.toggleRow(checkbox.id);
+            });
+        });
+
+
+        helper.forEach(tbody.querySelectorAll('tr'), function (row) {
+            row.addEventListener('click', function (event) {
+                resultObj.toggleRow(row.id);
+            });
+        });
+        return tbody;
+    };
+
+
+    /*
+     *  makes the admin tbody which is hidden by default.
+     *
+     */
+
+    createTableAdmin = function () {
+        var tbody = document.createElement('tbody'),
+            tr = document.createElement('tr'),
+            td = document.createElement('td'),
+
+            teamIdSelect,
+            startingPosSelect,
+            button;
+        
+        function admin(){
+            var wrapper = document.createElement('div'),
+                playerbox;
+            
+            wrapper.className = 'app__overlay-body-inner';
+            
+            helper.forEach(resultObj.selectedPlayers, function (id){
+                playerbox = document.createElement('div');
+                wrapper.appendChild(playerbox);
+                playerbox.innerHTML = id;
+            });
+            return wrapper;
+        }
+
+        tbody.appendChild(tr);
+        tbody.id = 'w-result__admin';
+        tbody.className = 'w-result__admin';
+        tr.appendChild(td);
+
+        td.setAttribute('colspan', resultObj.data.headers().length + 1);
+        td.className = 'w-result__admin-cell';
+
+        teamIdSelect = wSelect.createSelect({
+            id: 'admin_teamId',
+            title: 'teamId',
+            options: resultObj.data.list_teamID,
+            css: 'w-select--small',
+            dropup: true
+        });
+        td.appendChild(teamIdSelect);
+
+        button = wButton.create({
+            id: 'admin_submit',
+            label: 'change',
+            css: 'w-button--small w-button--submit',
+            callback: function () {
+                document.getElementById('app-overlay').classList.add('app__overlay--active');
+                document.getElementById('app__overlay-body').appendChild(admin());
+            }
+        });
+        td.appendChild(button);
+
         return tbody;
     };
 
@@ -376,7 +529,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
     /*
      *  Filters the data 
      *      - players: list of items
-     *      - type: function to filter with
+     *      - type: function which performs as the actual filter
      */
 
     filterResultData = function (players, type) {

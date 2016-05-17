@@ -9,16 +9,17 @@
    ========================================================================== */
 
 .w-result {
-//    border: .1em solid green;
+    //    border: .1em solid green;
     padding: 2em;
 }
 
 /*
- * HTML input type=text
+ * HTML main wrappers
  */
 
 .w-result__header {}
 .w-result__body {}
+
 
 /* ==========================================================================
    HTML Table:
@@ -30,7 +31,7 @@
 }
 
 /* ==========================================================================
-   HTML Table header:
+   HTML Table body: Header
    ========================================================================== */
 
 .w-result__header-row {
@@ -51,27 +52,56 @@
 }
 
 /* ==========================================================================
-   HTML Table body:
+   HTML Table body: Data
    ========================================================================== */
 
 .w-result__row {}
-.w-result__row:nth-child(odd) {
+//.w-result__row:nth-child(odd) {
+//    background: $app-accent-color-bg01;
+//}
+
+/*
+ * Modifiers
+ */
+
+.w-result__row--toggle {
     background: $app-accent-color-bg01;
 }
-.w-result__cell {
-    padding: .2em 1em;
+.w-result__row--active {
+    background: lighten($app-accent-color02, 30);
 }
 
+/*
+ *  HTML TD to show the data
+ */
+
+.w-result__cell {
+    padding: .6em 1em;
+}
 .w-result__highlight {
     background: $app-accent-color02;
     font-style: normal;
 }
 
+/* ==========================================================================
+   HTML Table body: Admin
+   ========================================================================== */
+
+.w-result__admin {
+    display: none;
+}
+.w-result__admin--active {
+    display: table-row-group;
+    border-top: .1em solid $app-accent-color01;
+}
+.w-result__admin-cell {
+    padding: 1em;
+}
 
 /* ==========================================================================
    PageNav:
    ========================================================================== */
 
-.w-result__pageNav{
+.w-result__pageNav {
     display: inline-block;
 }

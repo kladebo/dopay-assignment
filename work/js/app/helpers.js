@@ -103,11 +103,11 @@ define(function (require) {
                 } else if (valueA > valueB) {
                     return 1;
                 } else {
-                    
-                    if(sortfield && sortfield !== 'a'){
+
+                    if (sortfield && sortfield !== 'a') {
                         /* double sort by field 'a:playerID' when not sorted by field 'a' */
                         return (a.a.localeCompare(b.a));
-                    } else if(sortfield && sortfield === 'a'){
+                    } else if (sortfield && sortfield === 'a') {
                         /* double sort by field 'e:teamID' when sorted by field 'a' */
                         return (a.e.localeCompare(b.e));
                     }
@@ -117,6 +117,11 @@ define(function (require) {
             });
 
             return collection;
+        },
+
+        widgetId: function (id) {
+            id = id.substring(id.lastIndexOf('_') + 1);
+            return id;
         }
     };
 
