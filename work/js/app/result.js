@@ -163,7 +163,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             this.selectedPlayers = activeCheckboxes;
         },
         totalItems: function () {
-            return this.data.data.players.length;
+            return this.getPlayers().length;
         }
     };
 
@@ -291,7 +291,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             th,
             i, j,
 
-            headers = resultObj.data.headers();
+            headers = resultObj.getHeaders();
 
         tbody.appendChild(tr);
         tr.className = 'w-result__header-row';
@@ -355,7 +355,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             tr,
             td,
 
-            headers = resultObj.data.headers(),
+            headers = resultObj.getHeaders(),
             p, q,
             i, j, player, value, input, checkbox;
 
@@ -475,9 +475,28 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 title: 'edit field',
                 dropup: true,
                 css: 'w-select--small',
-                options: resultObj.data.list_headers,
+                options: resultObj.getHeaders(),
                 callback: function (active) {
                     print(active);
+                    var cell = resultObj.getHeaders().filter(function (item) {
+                        return item.id === active[0];
+                    })[0];
+                    /*
+                     * remove old highlight
+                     */
+                    helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--active'), function (cellitem) {
+                        cellitem.classList.remove('w-result__overlay-cell--active');
+                    });
+                    /*
+                     *  add new highlight
+                     */
+                    if (typeof cell !== 'undefined') {
+                        helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--' + cell.label), function (cellitem) {
+                            cellitem.classList.add('w-result__overlay-cell--active');
+                        });
+                    }
+
+
                 }
             });
             overlayFooter.appendChild(fieldSelect);
@@ -491,16 +510,16 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 overlayBody.appendChild(playerbox);
                 playerbox.className = 'w-result__overlay-row';
 
-                player = resultObj.data.players().filter(function (item) {
+                player = resultObj.getPlayers().filter(function (item) {
                     return item.dataId === playerid;
                 })[0];
 
-                helper.forEach(resultObj.data.headers(), function (header) {
+                helper.forEach(resultObj.getHeaders(), function (header) {
                     field = document.createElement('span');
                     playerbox.appendChild(field);
-                    
+
                     content = player.hasOwnProperty(header.id) ? player[header.id] : '-';
-                    field.className = 'w-result__overlay-cell w-result__overlay-cell--'+header.text;
+                    field.className = 'w-result__overlay-cell w-result__overlay-cell--' + header.text;
                     field.textContent = content;
                 });
 
@@ -514,13 +533,13 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         tbody.className = 'w-result__admin';
         tr.appendChild(td);
 
-        td.setAttribute('colspan', resultObj.data.headers().length + 1);
+        td.setAttribute('colspan', resultObj.getHeaders().length + 1);
         td.className = 'w-result__admin-cell';
 
         teamIdSelect = wSelect.createSelect({
             id: 'admin_teamId',
             title: 'teamId',
-            options: resultObj.data.list_teamID,
+            options: resultObj.list_teamID,
             css: 'w-select--small',
             dropup: true
         });
@@ -696,12 +715,14 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
         resultObj = resultObj || {};
 
-        if (resultObj.data) {
+        if (resultObj.localData) {
             return resultObj;
         } else {
             helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
-                    var i, j, list, item;
+                    var i, j, list, item,
+                        localData = response;
                     origData = response;
+                
 
 
 
@@ -717,29 +738,35 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     helper.forEach(origData.players, function (player, index) {
                         player.dataId = index;
                     });
+                
+                    helper.forEach(localData.players, function (player, index) {
+                        player.dataId = index;
+                    });
+                
+                    /*
+                     *  make two copies of the data. One for editing and one for checking
+                     */
+                    resultObj.origData = origData;
+                    resultObj.localData = localData;
 
-                    resultObj.data = {};
-                    resultObj.data.data = origData;
-                    resultObj.data.headers = function () {
-                        return resultObj.data.data.headers;
+
+
+                    resultObj.getHeaders = function () {
+                        return resultObj.localData.headers;
                     };
-                    resultObj.data.players = function () {
-                        return resultObj.data.data.players;
+                    resultObj.getPlayers = function () {
+                        return resultObj.localData.players;
                     };
 
                     /* list headers */
-
-                    resultObj.data.list_headers = resultObj.data.headers().map(function (player) {
-                        player.label = player.text;
-                        player.value = player.id;
-                        return player;
+                    helper.forEach(resultObj.getHeaders(), function (item) {
+                        item.label = item.text;
+                        item.value = item.id;
                     });
-
-                    //wSelect.makeSelectList(resultObj.data.list_teamID);
 
                     /* list teamIDs */
 
-                    resultObj.data.list_teamID = resultObj.data.players().filter(function (player) {
+                    resultObj.list_teamID = resultObj.getPlayers().filter(function (player) {
                         return player.hasOwnProperty('e');
                     }).map(function (player) {
                         if (player.hasOwnProperty('e')) {
@@ -747,12 +774,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         }
                     }).unique().sort();
 
-                    wSelect.makeSelectList(resultObj.data.list_teamID);
+                    wSelect.makeSelectList(resultObj.list_teamID);
 
 
                     /* list yearIDs */
 
-                    resultObj.data.list_yearID = resultObj.data.players().filter(function (player) {
+                    resultObj.list_yearID = resultObj.getPlayers().filter(function (player) {
                         return player.hasOwnProperty('b');
                     }).map(function (player) {
                         return player.b;
@@ -762,19 +789,19 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
                     /* list gameNums */
 
-                    resultObj.data.list_gameNum = resultObj.data.players().filter(function (player) {
+                    resultObj.list_gameNum = resultObj.getPlayers().filter(function (player) {
                         return player.hasOwnProperty('c');
                     }).map(function (player) {
                         return player.c;
 
                     }).unique().sort(helper.byInt);
 
-                    makeCheckList(resultObj.data.list_gameNum);
+                    makeCheckList(resultObj.list_gameNum);
 
 
                     /* list gameIDs */
 
-                    resultObj.data.list_gameID = resultObj.data.players().filter(function (player) {
+                    resultObj.list_gameID = resultObj.getPlayers().filter(function (player) {
                         return player.hasOwnProperty('d');
                     }).map(function (player) {
                         return player.d;
@@ -783,7 +810,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
                     /* list lgIDs */
 
-                    resultObj.data.list_lgID = resultObj.data.players().filter(function (player) {
+                    resultObj.list_lgID = resultObj.getPlayers().filter(function (player) {
                         return player.hasOwnProperty('f');
                     }).map(function (player) {
                         return player.f;
@@ -792,25 +819,25 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
                     /* list GPs */
 
-                    resultObj.data.list_GP = resultObj.data.players().filter(function (player) {
+                    resultObj.list_GP = resultObj.getPlayers().filter(function (player) {
                         return player.hasOwnProperty('g');
                     }).map(function (player) {
                         return player.g;
                     }).unique().sort(helper.byInt);
 
-                    makeCheckList(resultObj.data.list_GP);
+                    makeCheckList(resultObj.list_GP);
 
 
                     /* list startingPoss */
 
-                    resultObj.data.list_startingPos = resultObj.data.players().filter(function (player) {
+                    resultObj.list_startingPos = resultObj.getPlayers().filter(function (player) {
                         return player.hasOwnProperty('h');
                     }).map(function (player) {
                         return player.h;
 
                     }).unique().sort(helper.byInt);
 
-                    wSelect.makeSelectList(resultObj.data.list_startingPos);
+                    wSelect.makeSelectList(resultObj.list_startingPos);
 
 
                     /* create the searchForm */

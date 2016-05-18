@@ -140,6 +140,9 @@
     margin-right: .2em;
     overflow: hidden;
 }
+.w-result__overlay-cell--active {
+    background: red;
+}
 .w-result__overlay-cell--playerID {
     width: 6em;
 }

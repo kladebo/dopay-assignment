@@ -191,7 +191,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          */
 
         GP = wRadio.createGroup(
-            aResult.getData().data.list_GP, {
+            aResult.getData().list_GP, {
                 id: 'GP',
                 label: 'GP',
                 zero: true,
@@ -212,7 +212,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'teamID',
             title: 'teamID',
             //initial: 1,
-            options: aResult.getData().data.list_teamID,
+            options: aResult.getData().list_teamID,
             buttons: true,
             callback: function (active) {
                 submitTimeOut();
@@ -231,7 +231,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'startingPos',
             title: 'startingPos',
             //initial: 1,
-            options: aResult.getData().data.list_startingPos,
+            options: aResult.getData().list_startingPos,
             buttons: true,
             callback: function (active) {
                 submitTimeOut();
@@ -246,7 +246,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          */
 
         gameNum = wCheckbox.createGroup(
-            aResult.getData().data.list_gameNum, {
+            aResult.getData().list_gameNum, {
                 id: 'gameNum',
                 label: 'gameNum',
                 css: 'w-checkbox__group--block',
@@ -307,7 +307,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
      */
 
     submitForm = function () {
-        var players = aResult.getData().data.players(),
+        var players = aResult.getData().getPlayers(),
             sortfield;
 
 
