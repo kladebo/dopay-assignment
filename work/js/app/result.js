@@ -146,12 +146,15 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 row.classList.remove('w-result__row--active');
             }
 
+            /*
+             *  Check for active checkboxes
+             */
             helper.forEach(document.getElementsByName('activatePlayer'), function (checkbox) {
                 if (checkbox.checked) {
                     activeCheckboxes.push(helper.widgetId(checkbox.id));
                 }
             });
-            print(activeCheckboxes);
+
             if (activeCheckboxes.length) {
                 adminrow.classList.add('w-result__admin--active');
             } else {
@@ -197,14 +200,16 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
         button = wButton.create({
             id: 'close-admin-modal',
+            label: '',
             css: 'w-button--close',
-            callback:function () {
+            callback: function () {
                 pageOverlay.classList.remove('app__overlay--active');
+                document.body.style.overflow = 'visible';
                 overlayBody.innerHTML = '';
             }
         });
         pageOverlay.appendChild(button);
-        
+
         pageOverlay.appendChild(overlayBody);
         overlayBody.id = 'app__overlay-body';
         overlayBody.className = 'app__overlay-body';
@@ -241,8 +246,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             initial: resultObj.getPageView().index,
             classic: true,
             options: resultObj.pageViewList,
-            callback: function () {
-                resultObj.pageViewView = parseInt(document.getElementById('pageView').getAttribute('value'), 10);
+            callback: function (active) {
+                resultObj.pageViewView = parseInt(active[0], 10);
                 resultObj.pageStart = 0;
                 setTimeout(createView(resultObj.viewdata), 1000);
             },
@@ -294,19 +299,19 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         th = document.createElement('th');
         tr.appendChild(th);
         th.appendChild(wCheckbox.create({
-            id: 'selectAll'
-        }));
-        th.querySelector('#selectAll').addEventListener('change', function () {
-            var checkboxes,
-                i, j;
+            id: 'selectAll',
+            callback: function (active) {
+                var checkboxes,
+                    i, j;
 
-            checkboxes = document.getElementsByName('activatePlayer');
-            for (i = 0, j = checkboxes.length; i < j; i += 1) {
-                checkboxes[i].checked = !this.checked;
-                // updateView
-                resultObj.toggleRow(checkboxes[i].id);
+                checkboxes = document.getElementsByName('activatePlayer');
+                for (i = 0, j = checkboxes.length; i < j; i += 1) {
+                    checkboxes[i].checked = !active;
+                    resultObj.toggleRow(checkboxes[i].id);
+                }
             }
-        });
+        }));
+
 
 
         for (i = 0, j = headers.length; i < j; i += 1) {
@@ -411,7 +416,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
         /*
          *  Add events to the checkboxes
-         *
+         *  TODO: should be in a callback but not allowed in a for loop
          */
         helper.forEach(tbody.querySelectorAll('input.w-checkbox__checkbox'), function (checkbox) {
             checkbox.addEventListener('change', function () {
@@ -446,19 +451,62 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             teamIdSelect,
             startingPosSelect,
             button;
-        
-        function admin(){
-            var wrapper = document.createElement('div'),
-                playerbox;
-            
-            wrapper.className = 'app__overlay-body-inner';
-            
-            helper.forEach(resultObj.selectedPlayers, function (id){
-                playerbox = document.createElement('div');
-                wrapper.appendChild(playerbox);
-                playerbox.innerHTML = id;
+
+        function admin() {
+            var frag = document.createDocumentFragment(),
+                overlayHeader = document.createElement('div'),
+                overlayBody = document.createElement('div'),
+                overlayFooter = document.createElement('div'),
+                fieldSelect;
+
+            frag.appendChild(overlayHeader);
+            overlayHeader.className = 'w-result__overlay-header';
+            overlayHeader.innerHTML = 'Editing: ' + resultObj.selectedPlayers.length + ' items.';
+
+
+            frag.appendChild(overlayBody);
+            overlayBody.className = 'w-result__overlay-body';
+
+            frag.appendChild(overlayFooter);
+            overlayFooter.className = 'w-result__overlay-footer';
+
+            fieldSelect = wSelect.createSelect({
+                id: 'admin-fieldselector',
+                title: 'edit field',
+                dropup: true,
+                css: 'w-select--small',
+                options: resultObj.data.list_headers,
+                callback: function (active) {
+                    print(active);
+                }
             });
-            return wrapper;
+            overlayFooter.appendChild(fieldSelect);
+
+            helper.forEach(resultObj.selectedPlayers, function (playerid, index) {
+                var player,
+                    playerbox = document.createElement('div'),
+                    field,
+                    content;
+
+                overlayBody.appendChild(playerbox);
+                playerbox.className = 'w-result__overlay-row';
+
+                player = resultObj.data.players().filter(function (item) {
+                    return item.dataId === playerid;
+                })[0];
+
+                helper.forEach(resultObj.data.headers(), function (header) {
+                    field = document.createElement('span');
+                    playerbox.appendChild(field);
+                    
+                    content = player.hasOwnProperty(header.id) ? player[header.id] : '-';
+                    field.className = 'w-result__overlay-cell w-result__overlay-cell--'+header.text;
+                    field.textContent = content;
+                });
+
+                //playerbox.innerHTML = (index + 1) + ': ' + player.a + ' ' + player.b;
+            });
+            return frag;
         }
 
         tbody.appendChild(tr);
@@ -485,6 +533,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             callback: function () {
                 document.getElementById('app-overlay').classList.add('app__overlay--active');
                 document.getElementById('app__overlay-body').appendChild(admin());
+                document.body.style.overflow = 'hidden';
             }
         });
         td.appendChild(button);
@@ -678,7 +727,15 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         return resultObj.data.data.players;
                     };
 
+                    /* list headers */
 
+                    resultObj.data.list_headers = resultObj.data.headers().map(function (player) {
+                        player.label = player.text;
+                        player.value = player.id;
+                        return player;
+                    });
+
+                    //wSelect.makeSelectList(resultObj.data.list_teamID);
 
                     /* list teamIDs */
 

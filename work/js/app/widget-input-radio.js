@@ -107,7 +107,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             document.getElementById(specs.id).setAttribute('value', active);
 
             if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
-                specs.callback();
+                specs.callback(active);
             }
         }
 

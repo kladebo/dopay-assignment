@@ -121,7 +121,7 @@ define(function (require) {
 
         widgetId: function (id) {
             id = id.substring(id.lastIndexOf('_') + 1);
-            return id;
+            return parseInt(id, 10);
         }
     };
 

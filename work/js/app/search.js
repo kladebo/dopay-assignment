@@ -34,10 +34,10 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         highlight = wCheckbox.create({
             id: 'highlight',
             label: 'show highlighting',
-            checked: true
-        });
-        highlight.addEventListener('click', function () {
-            submitForm();
+            checked: true,
+            callback: function (active) {
+                submitForm();
+            }
         });
         wrapper.appendChild(highlight);
 
@@ -50,12 +50,11 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         autosubmit = wCheckbox.create({
             id: 'autosubmitform',
             label: 'submit while typing',
-            checked: true
-        });
-        autosubmit.addEventListener('click', function () {
-
-            if (this.checked) {
-                submitTimeOut();
+            checked: true,
+            callback: function (active) {
+                if (active) {
+                    submitTimeOut();
+                }
             }
         });
         wrapper.appendChild(autosubmit);
@@ -146,12 +145,12 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         wildcardCheckbox = wCheckbox.create({
             id: 'playerID_contains',
             label: 'contains value',
-            checked: true
+            checked: true,
+            callback: function (active) {
+                submitTimeOut();
+            }
         });
         frag.appendChild(wildcardCheckbox);
-        wildcardCheckbox.addEventListener('click', function () {
-            submitTimeOut();
-        });
 
 
 
@@ -196,7 +195,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
                 id: 'GP',
                 label: 'GP',
                 zero: true,
-                callback: function () {
+                callback: function (active) {
                     submitTimeOut();
                 }
             });
@@ -215,7 +214,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             //initial: 1,
             options: aResult.getData().data.list_teamID,
             buttons: true,
-            callback: function () {
+            callback: function (active) {
                 submitTimeOut();
             }
         });
@@ -234,7 +233,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             //initial: 1,
             options: aResult.getData().data.list_startingPos,
             buttons: true,
-            callback: function () {
+            callback: function (active) {
                 submitTimeOut();
             }
         });
@@ -251,7 +250,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
                 id: 'gameNum',
                 label: 'gameNum',
                 css: 'w-checkbox__group--block',
-                callback: function () {
+                callback: function (active) {
                     submitTimeOut();
                 }
             }
@@ -366,7 +365,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  Create new View ONLY when there is an active-filter
          */
         aResult.resultObj.pageStart = 0;
-        
+
         if (players.length !== aResult.getData().totalItems()) {
             aResult.createView(aResult.sortData(players, {
                 field: sortfield,

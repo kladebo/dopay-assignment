@@ -37,6 +37,14 @@
     border-color: $app-accent-color01;
 }
 .w-button--close {
+    background: transparent;
+    border-color: white;
+    box-shadow: none;
+    color: white;
+    float: right;
+    font-weight: bold;
+    margin-top: .6em;
+    margin-right: .6em;
     &:before {
         content: '\2715';
         line-height: 0;

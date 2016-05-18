@@ -16,6 +16,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
      *      checked:
      *      css:
      *      label:
+     *      callback:
      */
 
     create = function (specs) {
@@ -39,17 +40,17 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('value')) {
             checkbox.value = specs.value;
         }
-//        else {
-//            if (specs.hasOwnProperty('label')) {
-//                checkbox.value = specs.label;
-//                print('b: ' + specs.label);
-//            } else {
-//                if (specs.hasOwnProperty('id')) {
-//                    checkbox.value = specs.id;
-//                    print('c: ' + specs.id);
-//                }
-//            }
-//        }
+        //        else {
+        //            if (specs.hasOwnProperty('label')) {
+        //                checkbox.value = specs.label;
+        //                print('b: ' + specs.label);
+        //            } else {
+        //                if (specs.hasOwnProperty('id')) {
+        //                    checkbox.value = specs.id;
+        //                    print('c: ' + specs.id);
+        //                }
+        //            }
+        //        }
         if (specs.hasOwnProperty('checked')) {
             checkbox.checked = specs.checked;
         }
@@ -71,6 +72,12 @@ define(['app/print', 'app/helpers'], function (print, helper) {
             div.appendChild(label);
         } else {
             div.appendChild(checkbox);
+        }
+
+        if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
+            checkbox.addEventListener('change', function () {
+                specs.callback(this.checked);
+            });
         }
 
         /* 
@@ -128,9 +135,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
                 }
             });
             document.getElementById(specs.id).setAttribute('value', active);
-            
-            if(specs.hasOwnProperty('callback') && typeof specs.callback === 'function'){
-                specs.callback();
+
+            if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
+                specs.callback(active);
             }
         }
 

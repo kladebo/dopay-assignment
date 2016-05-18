@@ -20,7 +20,6 @@
 .w-result__header {}
 .w-result__body {}
 
-
 /* ==========================================================================
    HTML Table:
    ========================================================================== */
@@ -104,4 +103,64 @@
 
 .w-result__pageNav {
     display: inline-block;
+}
+
+/* ==========================================================================
+   Overlay content:
+   ========================================================================== */
+
+.w-result__overlay-header {
+    box-sizing: border-box;
+    color: white;
+    margin: 0 auto;
+    height: 10%;
+    width: 60%;
+}
+.w-result__overlay-body {
+    box-sizing: border-box;
+    color: white;
+    width: 60%;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1em;
+    overflow: auto;
+    height: 70%;
+}
+.w-result__overlay-footer {
+    box-sizing: border-box;
+    margin: 0 auto;
+    height: 20%;
+    width: 60%;
+}
+.w-result__overlay-row {
+    white-space: nowrap;
+}
+.w-result__overlay-cell {
+    display: inline-block;
+    margin-right: .2em;
+    overflow: hidden;
+}
+.w-result__overlay-cell--playerID {
+    width: 6em;
+}
+.w-result__overlay-cell--yearID {
+    width: 3em;
+}
+.w-result__overlay-cell--gameNum {
+    width: 2em;
+}
+.w-result__overlay-cell--gameID {
+    width: 8em;
+}
+.w-result__overlay-cell--teamID {
+    width: 3em;
+}
+.w-result__overlay-cell--lgID {
+    width: 2em;
+}
+.w-result__overlay-cell--GP {
+    width: 2em;
+}
+.w-result__overlay-cell--startingPos {
+    width: 2em;
 }

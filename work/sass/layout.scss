@@ -15,10 +15,11 @@ body {
     //position: relative;
 }
 .app__overlay {
-    background: rgba($app-accent-color01, .8);
+    background: rgba($app-accent-color01, .9);
     bottom: 0;
     display: none;
     left: 0;
+    overflow: auto;
     position: fixed;
     right: 0;
     top: 0;
@@ -28,15 +29,14 @@ body {
     display: block;
 }
 .app__overlay-body {
-    color: white;
-    margin-top: 4em;
+    position: fixed;
+    bottom: 4em;
+    top: 4em;
+    overflow: auto;
+    width: 100%;
 }
-.app__overlay-body-inner{
-    width: 60%;
-    margin: 0 auto;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 1em;
-}
+
+
 /* ==========================================================================
    Imports:
    ========================================================================== */

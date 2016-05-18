@@ -83,7 +83,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
                     oldactive.classList.remove('w-select__item--active');
                 });
                 li.classList.add('w-select__item--active');
-                document.getElementById('select__value--' + item.id).textContent = li.getAttribute('data-value');
+                document.getElementById('select__value--' + item.id).innerHTML = li.innerHTML;
             }
 
             if (item.hasOwnProperty('buttons') && item.buttons === true) {
@@ -134,6 +134,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
                 css: (item.multiple ? '' : 'w-checkbox--hidden')
             });
             li.appendChild(checkboxWidget);
+            
             checkbox = checkboxWidget.querySelector('input.w-checkbox__checkbox');
             checkbox.classList.add('w-select__item-checkbox');
 
@@ -271,6 +272,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
      *      - groups / options: the list from which the options will be created
      *      - buttons: boolean, adds buttons to the filterbar
      *      - callback: function to call after a change
+     *      - dropup: boolean, 
      */
 
     createSelect = function (item) {
@@ -428,11 +430,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         dropdown.setAttribute('value', active);
 
         if (item.hasOwnProperty('callback') && typeof item.callback === 'function') {
-            item.callback();
+            item.callback(active);
         }
-        //        require(['app/search'], function (wSearch) {
-        //            wSearch.submitTimeOut(2000);
-        //        });
 
         return active;
 
