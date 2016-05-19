@@ -19,6 +19,9 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('id')) {
             button.id = specs.id;
         }
+        if (specs.hasOwnProperty('value')) {
+            button.value = specs.value;
+        }
         if (specs.hasOwnProperty('css')) {
             button.className += ' ' + specs.css;
         }

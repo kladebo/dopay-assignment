@@ -122,6 +122,20 @@ define(function (require) {
         widgetId: function (id) {
             id = id.substring(id.lastIndexOf('_') + 1);
             return parseInt(id, 10);
+        },
+
+        makeWidgetDataList: function (list) {
+            var i, j,
+                item;
+            for (i = 0, j = list.length; i < j; i += 1) {
+                item = {};
+                item.id = i;
+                item.value = list[i];
+                item.label = list[i];
+
+                list[i] = item;
+            }
+            return list;
         }
     };
 

@@ -15,20 +15,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         hideDropDown, showDropDown, toggleDropDown;
 
 
-    function makeSelectList(list) {
-        var i,j,
-            item;
-        for (i = 0, j = list.length; i < j; i += 1) {
-            item = {};
-            item.id = i;
-            item.value = list[i];
-            item.label = list[i];
-
-            list[i] = item;
-        }
-        return list;
-    }
-
 
     initFilterWapper = function () {
         var wrapper = document.createElement('div');
@@ -440,7 +426,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
     return {
         createSelect: createSelect,
         disableSelect: disableSelect,
-        initFilterWapper: initFilterWapper,
-        makeSelectList: makeSelectList
+        initFilterWapper: initFilterWapper
     };
 });

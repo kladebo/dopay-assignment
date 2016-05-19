@@ -2,8 +2,7 @@
 define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select', 'app/widget-button'], function (print, helper, wCheckbox, wRadio, wSelect, wButton) {
     'use strict';
 
-    var origData,
-        resultObj,
+    var resultObj,
         initView,
         createViewHeader,
         createView,
@@ -13,18 +12,26 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         createTableAdmin,
         getData,
         sortData,
-        addHiglight,
-        filterResultData;
+        addHiglight;
 
 
+    
+    /*
+     *  Within this Object the loaded Json-data gets stored.
+     *  This is also the place to keep all 'filter' related variables
+     *
+     *
+     */
 
     resultObj = {
         sortField: '',
         sortOrder: '', // a OR d
         pageStart: 0,
-        pageViewList: wSelect.makeSelectList([10, 25, 50, 100]),
+        pageViewList: helper.makeWidgetDataList([10, 25, 50, 100]),
         pageViewView: 10,
         selectedPlayers: [],
+
+
         getPageView: function () {
             var curPageView = parseInt(this.pageViewView, 10);
             return {
@@ -38,6 +45,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 })[0]
             };
         },
+
+
         getPageNavigation: function () {
             var frag = document.createDocumentFragment(),
                 button,
@@ -46,38 +55,50 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 i, j,
 
                 totalbuttons = Math.ceil(this.viewdata.length / this.pageViewView),
-                show = 7,
-                startbutton,
-                endbutton,
-                firstPage,
-                lastPage;
+                firstPage = this.pageStart === 0,
+                lastPage = this.pageStart + this.pageViewView > this.viewdata.length,
+                startButton,
+                endButton,
+                viewRange = 7;
 
-            startbutton = Math.ceil(this.pageStart / this.pageViewView) - Math.floor(show / 2);
-            if (startbutton < 0) {
-                startbutton = 0;
+
+            /*
+             *  Calculation for the startButton
+             */
+
+            startButton = Math.ceil(this.pageStart / this.pageViewView) - Math.floor(viewRange / 2);
+            if (startButton < 0) {
+                startButton = 0;
             }
-            endbutton = startbutton + show;
+            endButton = startButton + viewRange;
 
-            if (endbutton > totalbuttons) {
-                endbutton = totalbuttons;
-                startbutton = endbutton - show;
-                if (startbutton < 0) {
-                    startbutton = 0;
+            if (endButton > totalbuttons) {
+                endButton = totalbuttons;
+                startButton = endButton - viewRange;
+                if (startButton < 0) {
+                    startButton = 0;
                 }
             }
-
-            firstPage = this.pageStart === 0;
-            lastPage = this.pageStart + this.pageViewView > this.viewdata.length;
 
             frag.appendChild(wrapper);
             wrapper.className = 'w-result__pageNav';
 
+
+            /*
+             *  When there's no paging needed just return a empty wrapper
+             */
             if (totalbuttons === 1) {
                 return frag;
             }
 
+
+
+            /*
+             *  Create the buttons for the navigation
+             */
+
             button = wButton.create({
-                id: 0,
+                value: 0,
                 label: 'First',
                 css: firstPage ? 'w-button__pageNav--disabled' : '',
                 disabled: firstPage
@@ -85,23 +106,24 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             wrapper.appendChild(button);
 
             button = wButton.create({
-                id: Math.ceil(this.pageStart / this.pageViewView) - 1,
+                value: Math.ceil(this.pageStart / this.pageViewView) - 1,
                 label: '&nbsp;&laquo;&nbsp;',
                 css: firstPage ? 'w-button__pageNav--disabled' : '',
                 disabled: firstPage
             });
             wrapper.appendChild(button);
 
-            for (i = startbutton, j = endbutton; i < j; i += 1) {
+            for (i = startButton, j = endButton; i < j; i += 1) {
                 button = wButton.create({
-                    id: i,
+                    value: i,
                     label: i + 1,
                     css: i === Math.ceil(this.pageStart / this.pageViewView) ? 'w-button__pageNav--active' : ''
                 });
                 wrapper.appendChild(button);
             }
+
             button = wButton.create({
-                id: Math.ceil(this.pageStart / this.pageViewView) + 1,
+                value: Math.ceil(this.pageStart / this.pageViewView) + 1,
                 label: '&nbsp;&raquo;&nbsp;',
                 css: lastPage ? 'w-button__pageNav--disabled' : '',
                 disabled: lastPage
@@ -109,7 +131,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             wrapper.appendChild(button);
 
             button = wButton.create({
-                id: totalbuttons - 1,
+                value: totalbuttons - 1,
                 label: 'Last',
                 css: lastPage ? 'w-button__pageNav--disabled' : '',
                 disabled: lastPage
@@ -122,7 +144,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     if (this.className.indexOf('w-button__pageNav--active') > -1) {
                         return false;
                     }
-                    resultObj.pageStart = (parseInt(button.id, 10) * parseInt(resultObj.pageViewView, 10));
+                    resultObj.pageStart = (parseInt(button.value, 10) * parseInt(resultObj.pageViewView, 10));
 
                     createView(resultObj.viewdata);
                 });
@@ -130,6 +152,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
             return frag;
         },
+
+
         toggleRow: function (id) {
             //print(id);
             var widgetId = helper.widgetId(id),
@@ -162,6 +186,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             }
             this.selectedPlayers = activeCheckboxes;
         },
+
+
         totalItems: function () {
             return this.getPlayers().length;
         }
@@ -233,7 +259,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         wrapper.className = 'w-result__paging-info';
 
         text = text.replace('#0#', data.length);
-        text = text.replace('#1#', resultObj.totalItems());
+        text = text.replace('#1#', resultObj.getPlayers().length);
         text = text.replace('#2#', resultObj.pageStart + 1);
         text = text.replace('#3#', ((resultObj.pageStart + resultObj.pageViewView) < resultObj.viewdata.length ? (resultObj.pageStart + resultObj.pageViewView) : resultObj.viewdata.length));
 
@@ -595,114 +621,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
 
     /*
-     *  Filters the data 
-     *      - players: list of items
-     *      - type: function which performs as the actual filter
-     */
-
-    filterResultData = function (players, type) {
-
-        /*
-         *  Filter funtions for each data/field type
-         */
-
-        function playerID(player) {
-            if (!player.hasOwnProperty('a')) {
-                return false;
-            }
-            if (document.getElementById('playerID_contains').checked) {
-                return player.a.toLowerCase().indexOf(document.getElementById('playerID').value.toLowerCase()) >= 0;
-            } else {
-                return player.a.toLowerCase().indexOf(document.getElementById('playerID').value.toLowerCase()) === 0;
-            }
-        }
-
-        function yearID(player) {
-            if (!player.hasOwnProperty('b')) {
-                return false;
-            }
-            return player.b.toString().indexOf(document.getElementById('yearID').value) >= 0;
-        }
-
-        function gameNum(player) {
-            var active = ',' + document.getElementById('gameNum').getAttribute('value') + ',';
-            if (!player.hasOwnProperty('c')) {
-                return false;
-            }
-            return active.indexOf(',' + player.c + ',') > -1;
-        }
-
-        function gameID(player) {
-            if (!player.hasOwnProperty('d')) {
-                return false;
-            }
-            return player.d.toLowerCase().indexOf(document.getElementById('gameID').value.toLowerCase()) >= 0;
-        }
-
-        function GP(player) {
-            var active = ',' + document.getElementById('GP').getAttribute('value') + ',';
-            if (!player.hasOwnProperty('g')) {
-                return false;
-            }
-            return active.indexOf(',' + player.g + ',') > -1;
-        }
-
-        function teamID(player) {
-            var active = ',' + document.getElementById('teamID').getAttribute('value') + ',';
-            if (!player.hasOwnProperty('e')) {
-                return false;
-            }
-            return active.indexOf(',' + player.e + ',') > -1;
-        }
-
-        function startingPos(player) {
-            var active = ',' + document.getElementById('startingPos').getAttribute('value') + ',';
-            if (!player.hasOwnProperty('h')) {
-                return false;
-            }
-            return active.indexOf(',' + player.h + ',') > -1;
-        }
-
-
-
-        /*
-         *  String to corresponding function
-         */
-
-        if (type === 'playerID') {
-            type = playerID;
-        }
-        if (type === 'yearID') {
-            type = yearID;
-        }
-        if (type === 'gameID') {
-            type = gameID;
-        }
-        if (type === 'GP') {
-            type = GP;
-        }
-        if (type === 'teamID') {
-            type = teamID;
-        }
-        if (type === 'startingPos') {
-            type = startingPos;
-        }
-        if (type === 'gameNum') {
-            type = gameNum;
-        }
-
-
-
-        /*
-         *  The actual filtering of the data
-         */
-
-        return players.filter(type);
-    };
-
-
-
-    /*
      *  Retreives the json-file with the data
      *      - Adds a dataId to each player
      *      - Creates a resultobject which holds the data
@@ -713,147 +631,136 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
     getData = function () {
 
-        resultObj = resultObj || {};
+        helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
+                var i, j, list, item;
 
-        if (resultObj.localData) {
-            return resultObj;
-        } else {
-            helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
-                    var i, j, list, item,
-                        localData = response;
-                    origData = response;
-                
+                resultObj.origData = response;
 
 
 
-                    function makeCheckList(list) {
-                        return wSelect.makeSelectList(list);
-                    }
+                /*
+                 *  Add a dataId to the each player
+                 */
 
-
-                    /*
-                     *  Add a dataId to the each player
-                     */
-
-                    helper.forEach(origData.players, function (player, index) {
-                        player.dataId = index;
-                    });
-                
-                    helper.forEach(localData.players, function (player, index) {
-                        player.dataId = index;
-                    });
-                
-                    /*
-                     *  make two copies of the data. One for editing and one for checking
-                     */
-                    resultObj.origData = origData;
-                    resultObj.localData = localData;
-
-
-
-                    resultObj.getHeaders = function () {
-                        return resultObj.localData.headers;
-                    };
-                    resultObj.getPlayers = function () {
-                        return resultObj.localData.players;
-                    };
-
-                    /* list headers */
-                    helper.forEach(resultObj.getHeaders(), function (item) {
-                        item.label = item.text;
-                        item.value = item.id;
-                    });
-
-                    /* list teamIDs */
-
-                    resultObj.list_teamID = resultObj.getPlayers().filter(function (player) {
-                        return player.hasOwnProperty('e');
-                    }).map(function (player) {
-                        if (player.hasOwnProperty('e')) {
-                            return player.e;
-                        }
-                    }).unique().sort();
-
-                    wSelect.makeSelectList(resultObj.list_teamID);
-
-
-                    /* list yearIDs */
-
-                    resultObj.list_yearID = resultObj.getPlayers().filter(function (player) {
-                        return player.hasOwnProperty('b');
-                    }).map(function (player) {
-                        return player.b;
-
-                    }).unique().sort(helper.byInt);
-
-
-                    /* list gameNums */
-
-                    resultObj.list_gameNum = resultObj.getPlayers().filter(function (player) {
-                        return player.hasOwnProperty('c');
-                    }).map(function (player) {
-                        return player.c;
-
-                    }).unique().sort(helper.byInt);
-
-                    makeCheckList(resultObj.list_gameNum);
-
-
-                    /* list gameIDs */
-
-                    resultObj.list_gameID = resultObj.getPlayers().filter(function (player) {
-                        return player.hasOwnProperty('d');
-                    }).map(function (player) {
-                        return player.d;
-                    }).unique().sort(helper.byInt);
-
-
-                    /* list lgIDs */
-
-                    resultObj.list_lgID = resultObj.getPlayers().filter(function (player) {
-                        return player.hasOwnProperty('f');
-                    }).map(function (player) {
-                        return player.f;
-                    }).unique().sort(helper.byInt);
-
-
-                    /* list GPs */
-
-                    resultObj.list_GP = resultObj.getPlayers().filter(function (player) {
-                        return player.hasOwnProperty('g');
-                    }).map(function (player) {
-                        return player.g;
-                    }).unique().sort(helper.byInt);
-
-                    makeCheckList(resultObj.list_GP);
-
-
-                    /* list startingPoss */
-
-                    resultObj.list_startingPos = resultObj.getPlayers().filter(function (player) {
-                        return player.hasOwnProperty('h');
-                    }).map(function (player) {
-                        return player.h;
-
-                    }).unique().sort(helper.byInt);
-
-                    wSelect.makeSelectList(resultObj.list_startingPos);
-
-
-                    /* create the searchForm */
-
-                    require(['app/search'], function (search) {
-                        search.createForm();
-                        initView();
-                    });
-
-                    print(resultObj);
-
-                },
-                function (error) {
-                    console.error("Failed!", error);
+                helper.forEach(resultObj.origData.players, function (player, index) {
+                    player.dataId = index;
                 });
-        }
+
+
+
+                /*
+                 *  Make a copy of the data to work with
+                 */
+                resultObj.localData = JSON.parse(JSON.stringify(resultObj.origData));
+
+
+
+                resultObj.getHeaders = function () {
+                    return resultObj.localData.headers;
+                };
+                resultObj.getPlayers = function () {
+                    return resultObj.localData.players;
+                };
+
+                /*
+                 *  Make some lists out of the data. Use these lists within eg. selectboxes.
+                 */
+
+
+                /* list headers */
+
+                helper.forEach(resultObj.getHeaders(), function (item) {
+                    item.label = item.text;
+                    item.value = item.id;
+                });
+
+
+                /* list teamIDs */
+
+                resultObj.list_teamID = resultObj.getPlayers().filter(function (player) {
+                    return player.hasOwnProperty('e');
+                }).map(function (player) {
+                    if (player.hasOwnProperty('e')) {
+                        return player.e;
+                    }
+                }).unique().sort();
+                helper.makeWidgetDataList(resultObj.list_teamID);
+
+
+                /* list yearIDs */
+
+                resultObj.list_yearID = resultObj.getPlayers().filter(function (player) {
+                    return player.hasOwnProperty('b');
+                }).map(function (player) {
+                    return player.b;
+
+                }).unique().sort(helper.byInt);
+
+
+                /* list gameNums */
+
+                resultObj.list_gameNum = resultObj.getPlayers().filter(function (player) {
+                    return player.hasOwnProperty('c');
+                }).map(function (player) {
+                    return player.c;
+
+                }).unique().sort(helper.byInt);
+                helper.makeWidgetDataList(resultObj.list_gameNum);
+
+
+                /* list gameIDs */
+
+                resultObj.list_gameID = resultObj.getPlayers().filter(function (player) {
+                    return player.hasOwnProperty('d');
+                }).map(function (player) {
+                    return player.d;
+                }).unique().sort(helper.byInt);
+
+
+                /* list lgIDs */
+
+                resultObj.list_lgID = resultObj.getPlayers().filter(function (player) {
+                    return player.hasOwnProperty('f');
+                }).map(function (player) {
+                    return player.f;
+                }).unique().sort(helper.byInt);
+
+
+                /* list GPs */
+
+                resultObj.list_GP = resultObj.getPlayers().filter(function (player) {
+                    return player.hasOwnProperty('g');
+                }).map(function (player) {
+                    return player.g;
+                }).unique().sort(helper.byInt);
+                helper.makeWidgetDataList(resultObj.list_GP);
+
+
+                /* list startingPoss */
+
+                resultObj.list_startingPos = resultObj.getPlayers().filter(function (player) {
+                    return player.hasOwnProperty('h');
+                }).map(function (player) {
+                    return player.h;
+
+                }).unique().sort(helper.byInt);
+                helper.makeWidgetDataList(resultObj.list_startingPos);
+
+
+                /* create the searchForm */
+
+                require(['app/search'], function (search) {
+                    search.createForm();
+                    initView();
+                });
+
+                print(resultObj);
+
+            },
+            function (error) {
+                console.error("Failed!", error);
+            });
+
     };
 
 
@@ -901,7 +808,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
     return {
         getData: getData,
         createView: createView,
-        filterResultData: filterResultData,
         sortData: sortData,
         resultObj: resultObj
     };

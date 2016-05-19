@@ -2,10 +2,12 @@
 define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select'], function (print, helper, aResult, wInput, wButton, wCheckbox, wRadio, wSelect) {
     'use strict';
 
-    var initForm,
+    var resultObj = aResult.resultObj,
+        initForm,
         createForm,
         createFormElements,
         createSettings,
+        filterPlayers,
         submitForm,
         submitTimer,
         submitTimeOut;
@@ -68,7 +70,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             wrapper = document.createElement('div'),
             formWrapper = document.createElement('div');
 
-
+        print(resultObj);
         frag.appendChild(wrapper);
         wrapper.className = 'wrapper__form';
 
@@ -191,7 +193,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          */
 
         GP = wRadio.createGroup(
-            aResult.getData().list_GP, {
+            resultObj.list_GP, {
                 id: 'GP',
                 label: 'GP',
                 zero: true,
@@ -212,7 +214,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'teamID',
             title: 'teamID',
             //initial: 1,
-            options: aResult.getData().list_teamID,
+            options: resultObj.list_teamID,
             buttons: true,
             callback: function (active) {
                 submitTimeOut();
@@ -231,7 +233,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'startingPos',
             title: 'startingPos',
             //initial: 1,
-            options: aResult.getData().list_startingPos,
+            options: resultObj.list_startingPos,
             buttons: true,
             callback: function (active) {
                 submitTimeOut();
@@ -246,7 +248,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          */
 
         gameNum = wCheckbox.createGroup(
-            aResult.getData().list_gameNum, {
+            resultObj.list_gameNum, {
                 id: 'gameNum',
                 label: 'gameNum',
                 css: 'w-checkbox__group--block',
@@ -286,6 +288,98 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
 
     /*
+     *  Filters the data 
+     *      - players: list of items
+     *      - type: function which performs as the actual filter
+     */
+
+    filterPlayers = function (players, type) {
+        var customFilter;
+
+
+
+        /*
+         *  Filter funtions for each player/field type
+         */
+
+        switch (type) {
+            case 'playerID':
+                customFilter = function (player) {
+                    if (!player.hasOwnProperty('a')) {
+                        return false;
+                    }
+                    if (document.getElementById('playerID_contains').checked) {
+                        return player.a.toLowerCase().indexOf(document.getElementById('playerID').value.toLowerCase()) >= 0;
+                    } else {
+                        return player.a.toLowerCase().indexOf(document.getElementById('playerID').value.toLowerCase()) === 0;
+                    }
+                };
+                break;
+            case 'yearID':
+                customFilter = function (player) {
+                    if (!player.hasOwnProperty('b')) {
+                        return false;
+                    }
+                    return player.b.toString().indexOf(document.getElementById('yearID').value) >= 0;
+                };
+                break;
+            case 'gameID':
+                customFilter = function (player) {
+                    if (!player.hasOwnProperty('d')) {
+                        return false;
+                    }
+                    return player.d.toLowerCase().indexOf(document.getElementById('gameID').value.toLowerCase()) >= 0;
+                };
+                break;
+            case 'GP':
+                customFilter = function (player) {
+                    var active = ',' + document.getElementById('GP').getAttribute('value') + ',';
+                    if (!player.hasOwnProperty('g')) {
+                        return false;
+                    }
+                    return active.indexOf(',' + player.g + ',') > -1;
+                };
+                break;
+            case 'teamID':
+                customFilter = function (player) {
+                    var active = ',' + document.getElementById('teamID').getAttribute('value') + ',';
+                    if (!player.hasOwnProperty('e')) {
+                        return false;
+                    }
+                    return active.indexOf(',' + player.e + ',') > -1;
+                };
+                break;
+            case 'startingPos':
+                customFilter = function (player) {
+                    var active = ',' + document.getElementById('startingPos').getAttribute('value') + ',';
+                    if (!player.hasOwnProperty('h')) {
+                        return false;
+                    }
+                    return active.indexOf(',' + player.h + ',') > -1;
+                };
+                break;
+            case 'gameNum':
+                customFilter = function (player) {
+                    var active = ',' + document.getElementById('gameNum').getAttribute('value') + ',';
+                    if (!player.hasOwnProperty('c')) {
+                        return false;
+                    }
+                    return active.indexOf(',' + player.c + ',') > -1;
+                };
+                break;
+        }
+
+
+        /*
+         *  The actual filtering of the data
+         */
+
+        return players.filter(customFilter);
+    };
+
+
+
+    /*
      *  Submits the form with a timeOut
      */
 
@@ -307,14 +401,14 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
      */
 
     submitForm = function () {
-        var players = aResult.getData().getPlayers(),
+        var players = resultObj.getPlayers(),
             sortfield;
 
 
 
         /*
          *  Clear the last-view
-         *      TODO: spinner or something 
+         *      TODO: GUI spinner or something 
          */
 
         aResult.createView({});
@@ -326,47 +420,31 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  Depending on input the sort-field can differ
          */
 
-        if (document.getElementById('playerID').value !== '') {
-            players = aResult.filterResultData(players, 'playerID');
-            sortfield = 'a';
-        }
+        helper.forEach(resultObj.getHeaders(), function (header) {
+            var input = document.getElementById(header.text),
+                value;
 
-        if (document.getElementById('yearID').value !== '') {
-            players = aResult.filterResultData(players, 'yearID');
-            sortfield = 'b';
-        }
-
-        if (document.getElementById('gameNum').getAttribute('value')) {
-            players = aResult.filterResultData(players, 'gameNum');
-            sortfield = 'c';
-        }
-
-        if (document.getElementById('gameID').value !== '') {
-            players = aResult.filterResultData(players, 'gameID');
-        }
-
-        if (document.getElementById('GP').getAttribute('value')) {
-            players = aResult.filterResultData(players, 'GP');
-        }
-
-        if (document.getElementById('teamID').getAttribute('value')) {
-            players = aResult.filterResultData(players, 'teamID');
-            sortfield = 'e';
-        }
-
-        if (document.getElementById('startingPos').getAttribute('value')) {
-            players = aResult.filterResultData(players, 'startingPos');
-            sortfield = 'h';
-        }
+            if (input) {
+                if (input.value) {
+                    value = input.value;
+                } else {
+                    value = input.getAttribute('value');
+                }
+                if (value) {
+                    players = filterPlayers(players, header.text);
+                    sortfield = header.id;
+                }
+            }
+        });
 
 
 
         /*
          *  Create new View ONLY when there is an active-filter
          */
-        aResult.resultObj.pageStart = 0;
+        resultObj.pageStart = 0;
 
-        if (players.length !== aResult.getData().totalItems()) {
+        if (players.length !== resultObj.getPlayers().length) {
             aResult.createView(aResult.sortData(players, {
                 field: sortfield,
                 order: 'a'
