@@ -11,18 +11,15 @@
 
 .w-input {
     @include widget-base;
-    input {
-        background-color: transparent;
-        border: 0;
-        padding: .6em;
-        //width: 100%;
-    }
 }
 
 /*
  * Widget's modifiers
  */
 
+.w-input--small .w-input__input {
+    padding: .3em .6em;
+}
 .w-input--focus {
     @include widget__text-select--focus;
 }
@@ -31,6 +28,11 @@
  * HTML input type=text
  */
 
+.w-input__input {
+    background-color: transparent;
+    border: 0;
+    padding: .6em;
+}
 .w-input__input:focus {
     /* removes blue line on chrome */
     outline: none;

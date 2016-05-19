@@ -128,15 +128,15 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  playerID input-field
          */
 
-        playerID = wInput.createInput({
+        playerID = wInput.create({
             id: 'playerID',
-            placeholder: 'playerID'
+            placeholder: 'playerID',
+            autofocus: true,
+            callback: function(value){
+                submitTimeOut();
+            }
         });
         frag.appendChild(playerID);
-
-        playerID.addEventListener('keyup', function () {
-            submitTimeOut();
-        });
 
 
 
@@ -160,15 +160,14 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  yearID input-field
          */
 
-        yearID = wInput.createInput({
+        yearID = wInput.create({
             id: 'yearID',
-            placeholder: 'yearID'
+            placeholder: 'yearID',
+            callback: function (value){
+                submitTimeOut();
+            }
         });
         frag.appendChild(yearID);
-
-        yearID.addEventListener('keyup', function () {
-            submitTimeOut();
-        });
 
 
 
@@ -176,15 +175,14 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  gameID input-field
          */
 
-        gameID = wInput.createInput({
+        gameID = wInput.create({
             id: 'gameID',
-            placeholder: 'gameID'
+            placeholder: 'gameID',
+            callback: function (value){
+                submitTimeOut();
+            }
         });
         frag.appendChild(gameID);
-
-        gameID.addEventListener('keyup', function () {
-            submitTimeOut();
-        });
 
 
 

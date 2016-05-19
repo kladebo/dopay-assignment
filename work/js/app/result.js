@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select', 'app/widget-button'], function (print, helper, wCheckbox, wRadio, wSelect, wButton) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select', 'app/widget-button', 'app/widget-input'], function (print, helper, wCheckbox, wRadio, wSelect, wButton, wInput) {
     'use strict';
 
     var resultObj,
@@ -15,10 +15,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         addHiglight;
 
 
-    
+
     /*
      *  Within this Object the loaded Json-data gets stored.
-     *  This is also the place to keep all 'filter' related variables
+     *  This is also the place to keep all 'result' related variables
      *
      *
      */
@@ -483,7 +483,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 overlayHeader = document.createElement('div'),
                 overlayBody = document.createElement('div'),
                 overlayFooter = document.createElement('div'),
-                fieldSelect;
+                fieldSelect,
+                fieldEdit;
 
             frag.appendChild(overlayHeader);
             overlayHeader.className = 'w-result__overlay-header';
@@ -503,29 +504,66 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 css: 'w-select--small',
                 options: resultObj.getHeaders(),
                 callback: function (active) {
+
                     print(active);
+
+
                     var cell = resultObj.getHeaders().filter(function (item) {
                         return item.id === active[0];
                     })[0];
+
+
+
                     /*
-                     * remove old highlight
+                     *  clear fieldEdit on a change of the select
                      */
+
+                    wInput.clear(fieldEdit);
+
+
+
+                    /*
+                     * remove old collumn-highlight
+                     */
+
                     helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--active'), function (cellitem) {
                         cellitem.classList.remove('w-result__overlay-cell--active');
                     });
+
+
+
                     /*
-                     *  add new highlight
+                     *  add new collumn-highlight and enable/disable fieldEdit
                      */
+
                     if (typeof cell !== 'undefined') {
                         helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--' + cell.label), function (cellitem) {
                             cellitem.classList.add('w-result__overlay-cell--active');
                         });
+                        wInput.disable(fieldEdit, false);
+                        fieldEdit.focus();
+                    } else {
+                        wInput.disable(fieldEdit, true);
                     }
-
-
                 }
             });
+
             overlayFooter.appendChild(fieldSelect);
+
+            fieldEdit = wInput.create({
+                id: 'admin-edit',
+                placeholder: 'edit',
+                disabled: true,
+                css: 'w-input--small',
+                callback: function (value) {
+                    helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--active'), function (cellitem) {
+                        cellitem.textContent = value;
+                    });
+                }
+
+            });
+
+            overlayFooter.appendChild(fieldEdit);
 
             helper.forEach(resultObj.selectedPlayers, function (playerid, index) {
                 var player,
