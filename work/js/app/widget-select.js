@@ -1,6 +1,6 @@
 /*global define: false, require:false */
 
-define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-button'], function (print, helper, wCheckbox, wButton) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-button', 'app/widget-filter'], function (print, helper, wCheckbox, wButton, wFilter) {
     'use strict';
 
     var createSelect,
@@ -8,23 +8,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         createOptions,
         multipleMenu,
         itemClicked,
-        initFilterWapper,
-        createButtons,
         activeOption,
-        hideDropDown, showDropDown, toggleDropDown;
+        hideDropDown, showDropDown;
 
-
-    /*
-     *  creates the mainwrapper for the buttons
-     */
-    initFilterWapper = function () {
-        var wrapper = document.createElement('div');
-
-        wrapper.className = 'w-select__filterbar';
-        wrapper.id = 'filterBar';
-
-        return wrapper;
-    };
 
 
     activeOption = function (item, value) {
@@ -41,6 +27,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
     };
 
 
+
     /*
      *  Handles click-event on widget-li or widget-button:
      */
@@ -48,23 +35,22 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
     itemClicked = function (item, node) {
         var filterbar = document.getElementById('filter_' + item.id),
 
-            li, button, checkbox,
+            li, checkbox,
             isActive,
-            itemId = item.id + node.id.substr(node.id.lastIndexOf('_')),
+            itemId = item.id + '_' + helper.widgetId(node.id),
             classic;
 
+        print(itemId);
 
         li = document.getElementById('li_' + itemId);
         checkbox = document.getElementById('checkbox_' + itemId);
-        button = document.getElementById('button_' + itemId);
-        
-        isActive = (li ? li.className.indexOf('--active') >= 0 : button.className.indexOf('-active') >= 0);
+
+        isActive = node.className.indexOf('--active') >= 0;
 
         if (item.multiple) {
-            if(li){
+            if (li) {
                 li.classList.toggle('w-select__item-multiple--active');
             }
-            button.classList.toggle('w-button--filter-active');
 
         } else {
 
@@ -74,7 +60,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
 
             if (!classic && isActive) {
                 li.classList.remove('w-select__item--active');
-                document.getElementById('select__value--' + item.id).textContent = item.title;
+                document.getElementById('select__value--' + item.id).textContent = item.label;
             } else {
                 helper.forEach(item.w_dropdown.querySelectorAll('li.w-select__item--active'), function (oldactive) {
                     oldactive.classList.remove('w-select__item--active');
@@ -82,20 +68,14 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
                 li.classList.add('w-select__item--active');
                 document.getElementById('select__value--' + item.id).innerHTML = li.innerHTML;
             }
-
-            if (item.hasOwnProperty('buttons') && item.buttons === true) {
-                if (isActive) {
-                    button.classList.remove('w-button--filter-active');
-                } else {
-                    helper.forEach(filterbar.querySelectorAll('button.w-button--filter-active'), function (oldactive) {
-                        oldactive.classList.remove('w-button--filter-active');
-                    });
-                    button.classList.add('w-button--filter-active');
-                }
-            }
         }
 
-        if(checkbox) checkbox.checked = !isActive;
+
+        checkbox.checked = !isActive;
+
+        if (item.buttons) {
+            wFilter.buttonClicked(item, node);
+        }
 
 
         /*
@@ -157,6 +137,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
 
             active = activeOption(item, option.value);
 
+
+
             li = document.createElement('li');
             frag.appendChild(li);
             li.id = 'li_' + item.id + '_' + option.id;
@@ -167,11 +149,14 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
             }
 
 
+
             checkboxWidget = wCheckbox.create({
                 id: 'checkbox_' + item.id + '_' + option.id,
                 css: (item.multiple ? '' : 'w-checkbox--hidden')
             });
             li.appendChild(checkboxWidget);
+
+
 
             checkbox = checkboxWidget.querySelector('input.w-checkbox__checkbox');
             checkbox.classList.add('w-select__item-checkbox');
@@ -193,59 +178,16 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         });
 
 
-        if (item.hasOwnProperty('buttons')) {
-            if (item.buttons === true) {
-                createButtons(item);
-            }
+
+        if (item.buttons) {
+            item.w_filterAction = function (node) {
+                itemClicked(item, node);
+            };
+            wFilter.createWrapper(item);
         }
 
         return frag;
     };
-
-
-    /*
-     *  Each select-widget can have a bar with the activated options
-     */
-
-    createButtons = function (item) {
-        var frag = document.createDocumentFragment(),
-            mainwrapper = document.getElementById('filterBar'),
-            wrapper,
-            buttonList,
-            button;
-
-        if (!mainwrapper) {
-            console.error('There should be a element with: id="filterBar" on the page...');
-            return;
-        }
-
-        wrapper = document.getElementById('filter_' + item.id);
-        if (!wrapper) {
-            wrapper = document.createElement('div');
-            mainwrapper.appendChild(wrapper);
-            wrapper.id = 'filter_' + item.id;
-        }
-        wrapper.innerHTML = '';
-
-
-        buttonList = item.getOptions();
-        helper.forEach(buttonList, function (listitem) {
-
-            button = wButton.create({
-                id: 'button_' + item.id + '_' + listitem.id,
-                label: listitem.label,
-                css: 'w-button--filter' + (activeOption(item, listitem.value) ? ' w-button--filter-active' : '')
-            });
-            frag.appendChild(button);
-
-            button.addEventListener('click', function (event) {
-                itemClicked(item, this);
-            });
-        });
-
-        wrapper.appendChild(frag);
-    };
-
 
 
     /*
@@ -284,14 +226,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         dropdown.classList.remove('w-select__dropdown--hidden');
     };
 
-    toggleDropDown = function (dropdown) {
-        if (dropdown.className.indexOf('w-select__dropdown--hidden') >= 0) {
-            showDropDown(dropdown);
-        } else {
-            hideDropDown(dropdown);
-        }
-    };
-
 
 
     /*
@@ -315,6 +249,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         item.multiple = (item.hasOwnProperty('multiple') ? item.multiple : false);
         item.w_dropdown = dropdown;
         item.w_dynamic = typeof item.options === 'function';
+        item.buttons = (item.hasOwnProperty('buttons') && item.buttons === true) || false;
         item.getOptions = function () {
             if (item.w_dynamic) {
                 return item.options();
@@ -323,7 +258,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
             }
         };
 
-        
+
         div.className = 'w-select';
         if (item.hasOwnProperty('css')) {
             div.className += ' ' + item.css;
@@ -333,7 +268,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         div.appendChild(span);
         span.id = 'select__value--' + item.id;
         span.className = 'w-select__value';
-        span.textContent = item.title;
+        span.textContent = item.label;
 
 
         div.appendChild(dropdown);
@@ -382,15 +317,16 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         dropdown.appendChild(dropdownBody);
         dropdownBody.id = 'dropdown__body--' + item.id;
 
-        if (!item.w_dynamic) {
-            dropdownBody.appendChild(createOptions(item));
+        dropdownBody.appendChild(createOptions(item));
+
+
+        if (item.buttons) {
+            item.w_filterAction = function (node) {
+                itemClicked(item, node);
+            };
+            wFilter.createWrapper(item);
         }
 
-        if (item.hasOwnProperty('buttons')) {
-            if (item.buttons === true) {
-                createButtons(item);
-            }
-        }
 
         /*
          *  Attaches the following events to the main widget:
@@ -406,13 +342,15 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
 
             // load new list
 
-
-            if (item.w_dynamic) {
-                dropdownBody.innerHTML = '';
-                dropdownBody.appendChild(createOptions(item));
+            if (dropdown.className.indexOf('w-select__dropdown--hidden') >= 0) {
+                if (item.w_dynamic) {
+                    dropdownBody.innerHTML = '';
+                    dropdownBody.appendChild(createOptions(item));
+                }
+                showDropDown(dropdown);
+            } else {
+                hideDropDown(dropdown);
             }
-
-            toggleDropDown(dropdown);
         });
 
 
@@ -445,7 +383,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
 
     return {
         createSelect: createSelect,
-        disableSelect: disableSelect,
-        initFilterWapper: initFilterWapper
+        disableSelect: disableSelect
     };
 });

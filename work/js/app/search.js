@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select'], function (print, helper, aResult, wInput, wButton, wCheckbox, wRadio, wSelect) {
+define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widget-button', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select', 'app/widget-filter'], function (print, helper, aResult, wInput, wButton, wCheckbox, wRadio, wSelect, wFilter) {
     'use strict';
 
     var resultObj = aResult.resultObj,
@@ -88,7 +88,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *      The filter wrapper holds the active items from the widget-select
          */
 
-        wrapper.appendChild(wSelect.initFilterWapper());
+        wrapper.appendChild(wFilter.init());
 
 
 
@@ -176,20 +176,20 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  gameNum checkbox-group
          */
 
-        gameNum = wCheckbox.createGroup(
-            resultObj.list_gameNum, {
-                id: 'gameNum',
-                label: 'gameNum',
-                //css: 'w-checkbox__group--block',
-                callback: function (active) {
-                    submitTimeOut();
-                }
+        gameNum = wCheckbox.createGroup({
+            id: 'gameNum',
+            label: 'gameNum',
+            buttons: true,
+            checkboxes: resultObj.list_gameNum,
+            //css: 'w-checkbox__group--block',
+            callback: function (active) {
+                submitTimeOut();
             }
-        );
+        });
         frag.appendChild(gameNum);
-        
-        
-        
+
+
+
 
         /*
          *  gameID input-field
@@ -213,7 +213,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         teamID = wSelect.createSelect({
             multiple: true,
             id: 'teamID',
-            title: 'teamID',
+            label: 'teamID',
             initial: 31,
             options: function () {
                 return resultObj.list_teamID;
@@ -225,8 +225,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         });
         frag.appendChild(teamID);
 
-        
-        
+
+
         /*
          *  lgID selectbox
          */
@@ -234,7 +234,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         lgID = wSelect.createSelect({
             multiple: true,
             id: 'lgID',
-            title: 'lgID',
+            label: 'lgID',
             //initial: 1,
             options: function () {
                 return resultObj.list_lgID;
@@ -272,7 +272,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         startingPos = wSelect.createSelect({
             multiple: true,
             id: 'startingPos',
-            title: 'startingPos',
+            label: 'startingPos',
             initial: 1,
             options: function () {
                 return resultObj.list_startingPos;
@@ -489,6 +489,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
     return {
         initForm: initForm,
         createForm: createForm,
-        submitTimeOut : submitTimeOut
+        submitTimeOut: submitTimeOut
     };
 });

@@ -155,7 +155,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         toggleRow: function (id) {
             //print(id);
             var widgetId = helper.widgetId(id),
-                checkbox = document.getElementById('player_' + widgetId),
+                checkbox = document.getElementById('activatePlayer_' + widgetId),
                 row = document.getElementById('row_' + widgetId),
 
                 adminrow = document.getElementById('w-result__admin'),
@@ -266,7 +266,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
         pageViewWidget = wSelect.createSelect({
             id: 'pageView',
-            title: 'pageView',
+            label: 'pageView',
             initial: resultObj.getPageView(),
             classic: true,
             options: helper.makeWidgetDataList(resultObj.pageViewList),
@@ -406,7 +406,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             td = document.createElement('td');
             tr.appendChild(td);
             checkbox = wCheckbox.create({
-                id: 'player_' + collection[p].dataId,
+                id: collection[p].dataId,
                 name: 'activatePlayer'
             });
             td.appendChild(checkbox);
@@ -497,7 +497,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
             fieldSelect = wSelect.createSelect({
                 id: 'admin-fieldselector',
-                title: 'edit field',
+                label: 'edit field',
                 dropup: true,
                 css: 'w-select--small',
                 options: resultObj.list_allFields,

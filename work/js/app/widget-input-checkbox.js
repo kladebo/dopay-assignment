@@ -1,6 +1,6 @@
 /*global define: false, require:false */
 
-define(['app/print', 'app/helpers'], function (print, helper) {
+define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helper, wFilter) {
     'use strict';
 
     var create,
@@ -23,7 +23,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         var div = document.createElement('div'),
             span,
             checkbox = document.createElement('input'),
-            label;
+            label,
+            name;
 
 
         div.className = 'w-checkbox';
@@ -31,11 +32,15 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         checkbox.type = 'checkbox';
         checkbox.className = 'w-checkbox__checkbox';
 
-        if (specs.hasOwnProperty('id')) {
-            checkbox.id = specs.id;
-        }
         if (specs.hasOwnProperty('name')) {
-            checkbox.name = specs.name;
+            name = specs.name;
+        }
+
+        if (specs.hasOwnProperty('id')) {
+            checkbox.id = (name ? name+'_' : '') + specs.id;
+        }
+        if (name) {
+            checkbox.name = name;
         }
         if (specs.hasOwnProperty('value')) {
             checkbox.value = specs.value;
@@ -94,21 +99,37 @@ define(['app/print', 'app/helpers'], function (print, helper) {
 
     /*
      *  Creates a group of checkboxes
-     *      items: object with checkboxes
-     *          id: 
-     *          label:
      *      specs:
      *          id:
      *          label:
      *          css:
+     *          checkboxes: 
      *          callback: funtion to call after a change within the group
      */
 
-    createGroup = function (items, specs) {
+    createGroup = function (specs) {
         var wrapper = document.createElement('div'),
             checkbox,
             label,
             groupname = specs.id + '_group';
+
+        //print(specs);
+
+        //print(typeof specs.checkboxes);
+
+
+
+        specs.w_dynamic = typeof specs.checkboxes === 'function';
+        specs.w_dropdown = wrapper;
+        specs.buttons = (specs.hasOwnProperty('buttons') && specs.buttons === true) || false;
+        specs.getOptions = function () {
+            if (specs.w_dynamic) {
+                return specs.checkboxes();
+            } else {
+                return specs.checkboxes;
+            }
+        };
+
 
         wrapper.className = 'w-checkbox__group';
 
@@ -121,21 +142,38 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('label')) {
             label = document.createElement('div');
             wrapper.appendChild(label);
-            label.textContent = specs.label+':';
+            label.textContent = specs.label + ':';
             label.className = 'w-checkbox__group-label';
         }
+
+
+
+
+        if (specs.buttons) {
+            specs.w_filterAction = function (node) {
+                print(node);
+                var checkbox = document.getElementById(groupname+'_'+helper.widgetId(node.id));
+                checkbox.checked = !checkbox.checked;
+                setValue();
+            };
+            wFilter.createWrapper(specs);
+        }
+
 
         function setValue() {
             var checkboxes,
                 active = [];
 
             checkboxes = document.getElementsByName(groupname);
+
+            //print(checkboxes);
+
             helper.forEach(checkboxes, function (checkbox) {
                 if (checkbox.checked) {
                     active.push(checkbox.value);
                 }
             });
-            document.getElementById(specs.id).setAttribute('value', active);
+            wrapper.setAttribute('value', active);
 
             if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
                 specs.callback(active);
@@ -143,7 +181,7 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         }
 
 
-        helper.forEach(items, function (item) {
+        helper.forEach(specs.checkboxes, function (item) {
             checkbox = create({
                 id: item.id,
                 label: item.label,
