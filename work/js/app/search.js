@@ -70,7 +70,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             wrapper = document.createElement('div'),
             formWrapper = document.createElement('div');
 
-        print(resultObj);
+        // print(resultObj);
         frag.appendChild(wrapper);
         wrapper.className = 'wrapper__form';
 
@@ -116,6 +116,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             wildcardCheckbox,
             yearID,
             gameID,
+            lgID,
             GP,
             teamID,
             startingPos,
@@ -132,7 +133,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             id: 'playerID',
             placeholder: 'playerID',
             autofocus: true,
-            callback: function(value){
+            callback: function (value) {
                 submitTimeOut();
             }
         });
@@ -163,13 +164,32 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         yearID = wInput.create({
             id: 'yearID',
             placeholder: 'yearID',
-            callback: function (value){
+            callback: function (value) {
                 submitTimeOut();
             }
         });
         frag.appendChild(yearID);
 
+        
+        
+        /*
+         *  gameNum selectbox
+         */
 
+        lgID = wSelect.createSelect({
+            multiple: true,
+            id: 'lgID',
+            title: 'lgID',
+            //initial: 1,
+            options: function () {
+                return resultObj.list_lgID;
+            },
+            buttons: true,
+            callback: function (active) {
+                submitTimeOut();
+            }
+        });
+        frag.appendChild(lgID);
 
         /*
          *  gameID input-field
@@ -178,7 +198,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         gameID = wInput.create({
             id: 'gameID',
             placeholder: 'gameID',
-            callback: function (value){
+            callback: function (value) {
                 submitTimeOut();
             }
         });
@@ -211,8 +231,10 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             multiple: true,
             id: 'teamID',
             title: 'teamID',
-            //initial: 1,
-            options: resultObj.list_teamID,
+            initial: 31,
+            options: function () {
+                return resultObj.list_teamID;
+            },
             buttons: true,
             callback: function (active) {
                 submitTimeOut();
@@ -230,8 +252,10 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             multiple: true,
             id: 'startingPos',
             title: 'startingPos',
-            //initial: 1,
-            options: resultObj.list_startingPos,
+            initial: 1,
+            options: function () {
+                return resultObj.list_startingPos;
+            },
             buttons: true,
             callback: function (active) {
                 submitTimeOut();
@@ -249,7 +273,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             resultObj.list_gameNum, {
                 id: 'gameNum',
                 label: 'gameNum',
-                css: 'w-checkbox__group--block',
+                //css: 'w-checkbox__group--block',
                 callback: function (active) {
                     submitTimeOut();
                 }
@@ -365,6 +389,15 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
                     return active.indexOf(',' + player.c + ',') > -1;
                 };
                 break;
+            case 'lgID':
+                customFilter = function (player) {
+                    var active = ',' + document.getElementById('lgID').getAttribute('value') + ',';
+                    if (!player.hasOwnProperty('f')) {
+                        return false;
+                    }
+                    return active.indexOf(',' + player.f + ',') > -1;
+                };
+                break;
         }
 
 
@@ -442,17 +475,17 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          */
         resultObj.pageStart = 0;
 
-        if (players.length !== resultObj.getPlayers().length) {
-            aResult.createView(aResult.sortData(players, {
-                field: sortfield,
-                order: 'a'
-            }));
-        }
+        //if (players.length !== resultObj.getPlayers().length) {
+        aResult.createView(aResult.sortData(players, {
+            field: sortfield,
+            order: 'a'
+        }));
+        // }
     };
 
     return {
         initForm: initForm,
         createForm: createForm,
-        submitTimeOut: submitTimeOut
+        submitTimeOut : submitTimeOut
     };
 });

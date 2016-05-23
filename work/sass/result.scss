@@ -40,6 +40,7 @@
     font-weight: bold;
     padding: .2em 1em;
     color: $app-primary-white;
+    cursor: pointer;
 }
 
 /*
@@ -54,7 +55,9 @@
    HTML Table body: Data
    ========================================================================== */
 
-.w-result__row {}
+.w-result__row {
+    cursor: pointer;
+}
 //.w-result__row:nth-child(odd) {
 //    background: $app-accent-color-bg01;
 //}

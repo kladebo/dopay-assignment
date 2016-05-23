@@ -11,7 +11,7 @@
 
 .w-radio {
     display: inline-block;
-    border: .1em solid silver;
+//    border: .1em solid silver;
     @include widget-alignment;
 }
 
@@ -40,9 +40,16 @@
 
 .w-radio__group {
     display: inline-block;
-    @include widget-alignment;
+    @include widget-base;
 }
 .w-radio__group .w-radio {
-    display: block;
     margin: 0;
+}
+
+/*
+ *  Modifiers: block
+ */
+
+.w-checkbox__group--block .w-checkbox {
+    display: block;
 }

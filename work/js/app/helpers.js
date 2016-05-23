@@ -36,6 +36,10 @@ define(function (require) {
             return Array.prototype.forEach.call(ctn, callback);
         },
 
+        find: function (ctn, callback) {
+            return Array.prototype.find.call(ctn, callback);
+        },
+
 
         get: function (url) {
             // Return a new promise.
@@ -124,18 +128,37 @@ define(function (require) {
             return parseInt(id, 10);
         },
 
+        makeUniqueList: function (data, field) {
+            var list = data.filter(function (item) {
+                return item.hasOwnProperty(field);
+            }).map(function (item) {
+                return item[field];
+            }).unique();
+            if (isNaN(parseInt(list[0], 10))) {
+                list.sort();
+            } else {
+                list.sort(this.byInt);
+            }
+            
+                        
+            return list;
+        },
+
         makeWidgetDataList: function (list) {
             var i, j,
+                newList,
                 item;
+            
+            newList = [];
             for (i = 0, j = list.length; i < j; i += 1) {
                 item = {};
                 item.id = i;
                 item.value = list[i];
                 item.label = list[i];
 
-                list[i] = item;
+                newList.push(item);
             }
-            return list;
+            return newList;
         }
     };
 

@@ -27,23 +27,21 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         sortField: '',
         sortOrder: '', // a OR d
         pageStart: 0,
-        pageViewList: helper.makeWidgetDataList([10, 25, 50, 100]),
+        pageViewList: [10, 25, 50, 100],
         pageViewView: 10,
         selectedPlayers: [],
 
-
         getPageView: function () {
-            var curPageView = parseInt(this.pageViewView, 10);
-            return {
-                view: curPageView,
-                index: this.pageViewList.filter(function (item) {
-                    if (item.value === curPageView) {
-                        return item;
-                    }
-                }).map(function (item) {
-                    return item.id;
-                })[0]
-            };
+            var i, j,
+                found = 0;
+
+            for (i = 0, j = this.pageViewList.length; i < j; i += 1) {
+                if (this.pageViewView === this.pageViewList[i]) {
+                    found = i;
+                    break;
+                }
+            }
+            return found;
         },
 
 
@@ -269,9 +267,9 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         pageViewWidget = wSelect.createSelect({
             id: 'pageView',
             title: 'pageView',
-            initial: resultObj.getPageView().index,
+            initial: resultObj.getPageView(),
             classic: true,
-            options: resultObj.pageViewList,
+            options: helper.makeWidgetDataList(resultObj.pageViewList),
             callback: function (active) {
                 resultObj.pageViewView = parseInt(active[0], 10);
                 resultObj.pageStart = 0;
@@ -392,7 +390,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             /*
              *  Only show the results within the view-range
              */
-            if (resultObj.getPageView().view + resultObj.pageStart === p) {
+            if (resultObj.pageViewView + resultObj.pageStart === p) {
                 break;
             }
 
@@ -474,7 +472,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             tr = document.createElement('tr'),
             td = document.createElement('td'),
 
-            teamIdSelect,
             startingPosSelect,
             button;
 
@@ -484,7 +481,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 overlayBody = document.createElement('div'),
                 overlayFooter = document.createElement('div'),
                 fieldSelect,
-                fieldEdit;
+                fieldEdit,
+                saveButton;
 
             frag.appendChild(overlayHeader);
             overlayHeader.className = 'w-result__overlay-header';
@@ -502,14 +500,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 title: 'edit field',
                 dropup: true,
                 css: 'w-select--small',
-                options: resultObj.getHeaders(),
+                options: resultObj.list_allFields,
                 callback: function (active) {
-
-                    print(active);
 
 
                     var cell = resultObj.getHeaders().filter(function (item) {
-                        return item.id === active[0];
+                        return item.label === active[0];
                     })[0];
 
 
@@ -559,11 +555,41 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--active'), function (cellitem) {
                         cellitem.textContent = value;
                     });
+
                 }
 
             });
 
             overlayFooter.appendChild(fieldEdit);
+
+            saveButton = wButton.create({
+                id: 'admin-save',
+                label: 'save',
+                callback: function () {
+                    var field,
+                        value;
+                    field = document.getElementById('admin-fieldselector').getAttribute('value');
+                    value = document.getElementById('admin-edit').value;
+
+
+
+                    helper.forEach(resultObj.selectedPlayers, function (playerid) {
+                        var player = resultObj.getPlayers().filter(function (item) {
+                            return item.dataId === playerid;
+                        })[0];
+
+                        player[resultObj.getSetting(field).id] = value;
+
+                    });
+
+                    
+                    
+                    resultObj['list_' + field] = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), resultObj.getSetting(field).id));
+                    //print (resultObj['list_' + field]);
+                }
+            });
+
+            overlayFooter.appendChild(saveButton);
 
             helper.forEach(resultObj.selectedPlayers, function (playerid, index) {
                 var player,
@@ -599,15 +625,6 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
         td.setAttribute('colspan', resultObj.getHeaders().length + 1);
         td.className = 'w-result__admin-cell';
-
-        teamIdSelect = wSelect.createSelect({
-            id: 'admin_teamId',
-            title: 'teamId',
-            options: resultObj.list_teamID,
-            css: 'w-select--small',
-            dropup: true
-        });
-        td.appendChild(teamIdSelect);
 
         button = wButton.create({
             id: 'admin_submit',
@@ -670,11 +687,66 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
     getData = function () {
 
         helper.getJSON('js/data/allstarfull.min.json').then(function (response) {
-                var i, j, list, item;
+                var i, j, list, item, settings;
 
                 resultObj.origData = response;
 
-
+                resultObj.settings = [
+                    {
+                        id: 'a',
+                        search: 'wInput',
+                        datatype: 'String',
+                        maxlength: 9
+                    },
+                    {
+                        id: 'b',
+                        search: 'wInput',
+                        datatype: 'Number',
+                        maxlength: 4
+                    },
+                    {
+                        id: 'c',
+                        search: 'wCheckbox',
+                        datatype: 'Number',
+                        maxlength: 1,
+                        list: true
+                    },
+                    {
+                        id: 'd',
+                        search: 'wInput',
+                        datatype: 'String',
+                        maxlength: 12
+                    },
+                    {
+                        id: 'e',
+                        search: 'wSelect',
+                        datatype: 'String',
+                        maxlength: 3,
+                        list: true,
+                        test: /[A-Z]/
+                    },
+                    {
+                        id: 'f',
+                        search: 'wRadio',
+                        datatype: 'String',
+                        maxlength: 2,
+                        list: true
+                    },
+                    {
+                        id: 'g',
+                        search: 'wRadio',
+                        datatype: 'Boolean',
+                        maxlength: 1,
+                        list: true
+                    },
+                    {
+                        id: 'h',
+                        search: 'wSelect',
+                        datatype: 'Number',
+                        maxlength: 2,
+                        list: true
+                    }
+                ];
 
                 /*
                  *  Add a dataId to the each player
@@ -699,6 +771,13 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 resultObj.getPlayers = function () {
                     return resultObj.localData.players;
                 };
+                resultObj.getSetting = function (id) {
+                    return helper.find(resultObj.settings, function (item) {
+                        return (item.label === id || item.id === id);
+                    });
+                };
+
+
 
                 /*
                  *  Make some lists out of the data. Use these lists within eg. selectboxes.
@@ -710,79 +789,46 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 helper.forEach(resultObj.getHeaders(), function (item) {
                     item.label = item.text;
                     item.value = item.id;
+
+                    resultObj.getSetting(item.id).label = item.label;
                 });
 
 
+                resultObj.list_allFields = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getHeaders(), 'text'));
+                //helper.makeWidgetDataList(resultObj.klaas);
                 /* list teamIDs */
 
-                resultObj.list_teamID = resultObj.getPlayers().filter(function (player) {
-                    return player.hasOwnProperty('e');
-                }).map(function (player) {
-                    if (player.hasOwnProperty('e')) {
-                        return player.e;
-                    }
-                }).unique().sort();
-                helper.makeWidgetDataList(resultObj.list_teamID);
+                resultObj.list_teamID = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), 'e'));
 
 
                 /* list yearIDs */
 
-                resultObj.list_yearID = resultObj.getPlayers().filter(function (player) {
-                    return player.hasOwnProperty('b');
-                }).map(function (player) {
-                    return player.b;
-
-                }).unique().sort(helper.byInt);
+                resultObj.list_yearID = helper.makeUniqueList(resultObj.getPlayers(), 'b');
 
 
                 /* list gameNums */
 
-                resultObj.list_gameNum = resultObj.getPlayers().filter(function (player) {
-                    return player.hasOwnProperty('c');
-                }).map(function (player) {
-                    return player.c;
-
-                }).unique().sort(helper.byInt);
-                helper.makeWidgetDataList(resultObj.list_gameNum);
+                resultObj.list_gameNum = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), 'c'));
 
 
                 /* list gameIDs */
 
-                resultObj.list_gameID = resultObj.getPlayers().filter(function (player) {
-                    return player.hasOwnProperty('d');
-                }).map(function (player) {
-                    return player.d;
-                }).unique().sort(helper.byInt);
+                resultObj.list_gameID = helper.makeUniqueList(resultObj.getPlayers(), 'd');
 
 
                 /* list lgIDs */
 
-                resultObj.list_lgID = resultObj.getPlayers().filter(function (player) {
-                    return player.hasOwnProperty('f');
-                }).map(function (player) {
-                    return player.f;
-                }).unique().sort(helper.byInt);
+                resultObj.list_lgID = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), 'f'));
 
 
                 /* list GPs */
 
-                resultObj.list_GP = resultObj.getPlayers().filter(function (player) {
-                    return player.hasOwnProperty('g');
-                }).map(function (player) {
-                    return player.g;
-                }).unique().sort(helper.byInt);
-                helper.makeWidgetDataList(resultObj.list_GP);
+                resultObj.list_GP = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), 'g'));
 
 
                 /* list startingPoss */
 
-                resultObj.list_startingPos = resultObj.getPlayers().filter(function (player) {
-                    return player.hasOwnProperty('h');
-                }).map(function (player) {
-                    return player.h;
-
-                }).unique().sort(helper.byInt);
-                helper.makeWidgetDataList(resultObj.list_startingPos);
+                resultObj.list_startingPos = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), 'h'));
 
 
                 /* create the searchForm */
@@ -790,6 +836,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 require(['app/search'], function (search) {
                     search.createForm();
                     initView();
+                    search.submitTimeOut(1);
                 });
 
                 print(resultObj);
