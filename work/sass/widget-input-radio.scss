@@ -41,11 +41,15 @@
 .w-radio__group {
     display: inline-block;
     @include widget-base;
+    padding: .6em;
 }
 .w-radio__group .w-radio {
     margin: 0;
 }
-
+.w-radio__group-label {
+    display: inline-block;
+    //font-size: .9em;
+}
 /*
  *  Modifiers: block
  */

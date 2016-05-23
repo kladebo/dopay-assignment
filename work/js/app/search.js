@@ -170,10 +170,65 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         });
         frag.appendChild(yearID);
 
+
+
+        /*
+         *  gameNum checkbox-group
+         */
+
+        gameNum = wCheckbox.createGroup(
+            resultObj.list_gameNum, {
+                id: 'gameNum',
+                label: 'gameNum',
+                //css: 'w-checkbox__group--block',
+                callback: function (active) {
+                    submitTimeOut();
+                }
+            }
+        );
+        frag.appendChild(gameNum);
+        
+        
+        
+
+        /*
+         *  gameID input-field
+         */
+
+        gameID = wInput.create({
+            id: 'gameID',
+            placeholder: 'gameID',
+            callback: function (value) {
+                submitTimeOut();
+            }
+        });
+        frag.appendChild(gameID);
+
+
+
+        /*
+         *  teamID selectbox
+         */
+
+        teamID = wSelect.createSelect({
+            multiple: true,
+            id: 'teamID',
+            title: 'teamID',
+            initial: 31,
+            options: function () {
+                return resultObj.list_teamID;
+            },
+            buttons: true,
+            callback: function (active) {
+                submitTimeOut();
+            }
+        });
+        frag.appendChild(teamID);
+
         
         
         /*
-         *  gameNum selectbox
+         *  lgID selectbox
          */
 
         lgID = wSelect.createSelect({
@@ -190,19 +245,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             }
         });
         frag.appendChild(lgID);
-
-        /*
-         *  gameID input-field
-         */
-
-        gameID = wInput.create({
-            id: 'gameID',
-            placeholder: 'gameID',
-            callback: function (value) {
-                submitTimeOut();
-            }
-        });
-        frag.appendChild(gameID);
 
 
 
@@ -227,27 +269,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  teamID selectbox
          */
 
-        teamID = wSelect.createSelect({
-            multiple: true,
-            id: 'teamID',
-            title: 'teamID',
-            initial: 31,
-            options: function () {
-                return resultObj.list_teamID;
-            },
-            buttons: true,
-            callback: function (active) {
-                submitTimeOut();
-            }
-        });
-        frag.appendChild(teamID);
-
-
-
-        /*
-         *  teamID selectbox
-         */
-
         startingPos = wSelect.createSelect({
             multiple: true,
             id: 'startingPos',
@@ -262,24 +283,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             }
         });
         frag.appendChild(startingPos);
-
-
-
-        /*
-         *  gameNum checkbox-group
-         */
-
-        gameNum = wCheckbox.createGroup(
-            resultObj.list_gameNum, {
-                id: 'gameNum',
-                label: 'gameNum',
-                //css: 'w-checkbox__group--block',
-                callback: function (active) {
-                    submitTimeOut();
-                }
-            }
-        );
-        frag.appendChild(gameNum);
 
 
 

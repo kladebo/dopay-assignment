@@ -83,7 +83,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('label')) {
             label = document.createElement('div');
             wrapper.appendChild(label);
-            label.textContent = specs.label;
+            label.textContent = specs.label+':';
+            label.className = 'w-radio__group-label';
         }
 
         if (specs.hasOwnProperty('zero') && specs.zero === true) {

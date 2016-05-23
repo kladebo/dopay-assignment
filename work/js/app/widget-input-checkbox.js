@@ -121,7 +121,8 @@ define(['app/print', 'app/helpers'], function (print, helper) {
         if (specs.hasOwnProperty('label')) {
             label = document.createElement('div');
             wrapper.appendChild(label);
-            label.textContent = specs.label;
+            label.textContent = specs.label+':';
+            label.className = 'w-checkbox__group-label';
         }
 
         function setValue() {

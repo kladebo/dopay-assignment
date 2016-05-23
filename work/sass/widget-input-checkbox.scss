@@ -11,7 +11,7 @@
 
 .w-checkbox {
     display: inline-block;
-//    border: .1em solid silver;
+    //    border: .1em solid silver;
     @include widget-alignment;
 }
 
@@ -19,11 +19,10 @@
  *  Modifiers
  */
 
-.w-checkbox--hidden{
+.w-checkbox--hidden {
     display: none;
 }
-
-.w-checkbox--block{
+.w-checkbox--block {
     display: block;
 }
 
@@ -39,6 +38,7 @@
 .w-checkbox__checkbox:focus {
     @include widget--focus;
 }
+
 /* ==========================================================================
    HTML element span: holds the actual text
    ========================================================================== */
@@ -51,11 +51,15 @@
 
 .w-checkbox__group {
     display: inline-block;
-    @include widget-alignment;
+    @include widget-base;
+    padding: .6em;
 }
-
-.w-checkbox__group .w-checkbox{
+.w-checkbox__group .w-checkbox {
     margin: 0;
+}
+.w-checkbox__group-label {
+    display: inline-block;
+    //font-size: .9em;
 }
 
 /*
