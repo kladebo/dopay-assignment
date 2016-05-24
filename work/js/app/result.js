@@ -582,7 +582,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
                     });
 
-                    
+                    print(field);
                     
                     resultObj['list_' + field] = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), resultObj.getSetting(field).id));
                     //print (resultObj['list_' + field]);

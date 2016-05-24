@@ -235,7 +235,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             multiple: true,
             id: 'lgID',
             label: 'lgID',
-            //initial: 1,
             options: function () {
                 return resultObj.list_lgID;
             },
@@ -252,15 +251,18 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
          *  GP radiogroup
          */
 
-        GP = wRadio.createGroup(
-            resultObj.list_GP, {
-                id: 'GP',
-                label: 'GP',
-                zero: true,
-                callback: function (active) {
-                    submitTimeOut();
-                }
-            });
+        GP = wRadio.createGroup({
+            id: 'GP',
+            label: 'GP',
+            zero: true,
+            radios: function () {
+                return resultObj.list_GP;
+            },
+            buttons: true,
+            callback: function (active) {
+                submitTimeOut();
+            }
+        });
         frag.appendChild(GP);
 
 

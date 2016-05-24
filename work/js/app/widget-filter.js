@@ -50,6 +50,7 @@ define(['app/print', 'app/helpers', 'app/widget-button'], function (print, helpe
             mainwrapper.appendChild(wrapper);
             wrapper.id = 'filter_' + item.id;
             wrapper.className = 'w-filter__wrapper';
+            item.w_filterwrapper = wrapper;
         }
         wrapper.innerHTML = '';
 
@@ -76,10 +77,10 @@ define(['app/print', 'app/helpers', 'app/widget-button'], function (print, helpe
             active = [];
 
         //print(item);
-        
-        
+
+
         buttonList = item.getOptions();
-        
+
         //print(buttonList);
         helper.forEach(buttonList, function (listitem) {
             var button;
@@ -106,9 +107,9 @@ define(['app/print', 'app/helpers', 'app/widget-button'], function (print, helpe
 
         wrapper.appendChild(frag);
 
-        if(active.length){
+        if (active.length) {
             wrapper.classList.remove('w-filter__wrapper--hidden');
-        }else{
+        } else {
             wrapper.classList.add('w-filter__wrapper--hidden');
         }
     };
@@ -117,13 +118,24 @@ define(['app/print', 'app/helpers', 'app/widget-button'], function (print, helpe
     buttonClicked = function (item, node) {
         var button = document.getElementById('button_' + item.id + '_' + helper.widgetId(node.id)),
             wrapper = document.getElementById('filter_' + item.id),
-            
-            active = [];
 
-        if(!button || !wrapper){
+            active = [];
+        
+        
+        /*
+         *  Special scenario for radiobutton '_group_w-zero'
+         *      When 'none' radio is clicked find the active button 
+         */
+        if (node.type === 'radio' && node.id === item.id+'_group_w-zero' && node.value === '') {
+            button = wrapper.querySelector('button.w-button--filter-active');
+        }
+
+        
+
+        if (!button || !wrapper) {
             return;
         }
-        
+
         if (item.multiple) {
             button.classList.toggle('w-button--filter-active');
         } else {
@@ -136,15 +148,15 @@ define(['app/print', 'app/helpers', 'app/widget-button'], function (print, helpe
                 button.classList.add('w-button--filter-active');
             }
         }
-        
-        helper.forEach(wrapper.querySelectorAll('button.w-button--filter-active'), function(iem, index){
+
+        helper.forEach(wrapper.querySelectorAll('button.w-button--filter-active'), function (iem, index) {
             active.push(index);
         });
-        
-        
-        if(active.length){
+
+
+        if (active.length) {
             wrapper.classList.remove('w-filter__wrapper--hidden');
-        }else{
+        } else {
             wrapper.classList.add('w-filter__wrapper--hidden');
         }
     };

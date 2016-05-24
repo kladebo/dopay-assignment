@@ -320,6 +320,11 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-but
         dropdownBody.appendChild(createOptions(item));
 
 
+
+        /*
+         *  add fiterbuttons to the page
+         */
+
         if (item.buttons) {
             item.w_filterAction = function (node) {
                 itemClicked(item, node);

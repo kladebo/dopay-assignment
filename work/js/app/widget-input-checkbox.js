@@ -37,7 +37,8 @@ define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helpe
         }
 
         if (specs.hasOwnProperty('id')) {
-            checkbox.id = (name ? name+'_' : '') + specs.id;
+            div.id = 'div_' + (name ? name + '_' : '') + specs.id;
+            checkbox.id = (name ? name + '_' : '') + specs.id;
         }
         if (name) {
             checkbox.name = name;
@@ -45,17 +46,6 @@ define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helpe
         if (specs.hasOwnProperty('value')) {
             checkbox.value = specs.value;
         }
-        //        else {
-        //            if (specs.hasOwnProperty('label')) {
-        //                checkbox.value = specs.label;
-        //                print('b: ' + specs.label);
-        //            } else {
-        //                if (specs.hasOwnProperty('id')) {
-        //                    checkbox.value = specs.id;
-        //                    print('c: ' + specs.id);
-        //                }
-        //            }
-        //        }
         if (specs.hasOwnProperty('checked')) {
             checkbox.checked = specs.checked;
         }
@@ -98,13 +88,12 @@ define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helpe
 
 
     /*
-     *  Creates a group of checkboxes
-     *      specs:
-     *          id:
-     *          label:
-     *          css:
-     *          checkboxes: 
-     *          callback: funtion to call after a change within the group
+     *  Creates a group of checkboxes with the following specs:
+     *      id: 
+     *      label: the text to set before the radios
+     *      css: extra classNames for the widget
+     *      checkboxes: the object with the checkboxes
+     *      callback: funtion to call after a change within the group
      */
 
     createGroup = function (specs) {
@@ -113,15 +102,15 @@ define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helpe
             label,
             groupname = specs.id + '_group';
 
-        //print(specs);
 
-        //print(typeof specs.checkboxes);
-
-
+        /*
+         * Add some extra specs to the specs
+         */
 
         specs.w_dynamic = typeof specs.checkboxes === 'function';
         specs.w_dropdown = wrapper;
         specs.buttons = (specs.hasOwnProperty('buttons') && specs.buttons === true) || false;
+        specs.multiple = true;
         specs.getOptions = function () {
             if (specs.w_dynamic) {
                 return specs.checkboxes();
@@ -130,6 +119,67 @@ define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helpe
             }
         };
 
+
+
+        /*
+         *  Sets the value after a goup-checkbox is clicked
+         */
+
+        function setValue(node) {
+            var checkbox,
+                checkboxes,
+                active = [];
+
+
+            /*
+             *  When filter button clicked pre-toggle the checkbox
+             */
+
+            if (node.tagName === 'BUTTON') {
+                checkbox = document.getElementById(groupname + '_' + helper.widgetId(node.id));
+                checkbox.checked = !checkbox.checked;
+            }
+
+
+
+            /*
+             *  Check for checked checkboxes and set 'value' atrribute
+             */
+
+            checkboxes = document.getElementsByName(groupname);
+
+            helper.forEach(checkboxes, function (checkbox) {
+                if (checkbox.checked) {
+                    active.push(checkbox.value);
+                }
+            });
+            wrapper.setAttribute('value', active);
+
+
+
+            /*
+             *  Toggle the filter-buttons...
+             */
+
+            if (specs.buttons) {
+                wFilter.buttonClicked(specs, node);
+            }
+
+
+            /*
+             *  Call the callback-funtion if provided
+             */
+
+            if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
+                specs.callback(active);
+            }
+        }
+
+
+
+        /*
+         * Create the widgets-DOM elements
+         */
 
         wrapper.className = 'w-checkbox__group';
 
@@ -148,38 +198,22 @@ define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helpe
 
 
 
+        /*
+         *  Add fiter-buttons to the page
+         */
 
         if (specs.buttons) {
             specs.w_filterAction = function (node) {
-                print(node);
-                var checkbox = document.getElementById(groupname+'_'+helper.widgetId(node.id));
-                checkbox.checked = !checkbox.checked;
-                setValue();
+                setValue(node);
             };
             wFilter.createWrapper(specs);
         }
 
 
-        function setValue() {
-            var checkboxes,
-                active = [];
 
-            checkboxes = document.getElementsByName(groupname);
-
-            //print(checkboxes);
-
-            helper.forEach(checkboxes, function (checkbox) {
-                if (checkbox.checked) {
-                    active.push(checkbox.value);
-                }
-            });
-            wrapper.setAttribute('value', active);
-
-            if (specs.hasOwnProperty('callback') && typeof specs.callback === 'function') {
-                specs.callback(active);
-            }
-        }
-
+        /*
+         *  Add the checkboxes to the group-wrapper
+         */
 
         helper.forEach(specs.checkboxes, function (item) {
             checkbox = create({
@@ -190,8 +224,8 @@ define(['app/print', 'app/helpers', 'app/widget-filter'], function (print, helpe
             });
             wrapper.appendChild(checkbox);
 
-            checkbox.addEventListener('click', function () {
-                setValue();
+            checkbox.addEventListener('click', function (event) {
+                setValue(this);
             });
         });
         return wrapper;
