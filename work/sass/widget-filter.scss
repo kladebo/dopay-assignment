@@ -10,12 +10,12 @@
    ========================================================================== */
 
 .w-filter__mainwrapper {
-    border-top: .1em solid $app-border-color;
-    margin-top: 1em;
-    padding: 1em 0;
+    border-bottom: $widget-border-specs;
+    padding: .35em 0;
 }
 .w-filter__wrapper {
     display: inline-block;
+    margin-bottom: .4em;
     margin-right: .4em;
 }
 
@@ -29,5 +29,6 @@
 .w-filter__label {
     display: inline-block;
     font-weight: bold;
-    margin: 0 .2em;
+    margin-right: .3em;
+    vertical-align: top;
 }

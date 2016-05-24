@@ -9,8 +9,15 @@
    ========================================================================== */
 
 .wrapper__form {
-    border-bottom: .1em solid $app-border-color;
-    padding: 2em;
-    background: $app-accent-color-bg01;
+    //border-bottom: .1em solid $app-border-color;
+    padding: 1em;
+    //background: $app-accent-color-bg01;
 }
 .w-form {}
+.w-form .w-input,
+.w-form .w-select,
+.w-form .w-checkbox__group,
+.w-form .w-radio__group{
+    width: 100%;
+    margin-bottom: .5em;
+}

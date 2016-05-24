@@ -10,7 +10,7 @@
 
 .w-result {
     //    border: .1em solid green;
-    padding: 2em;
+    //padding: 2em;
 }
 
 /*
@@ -18,6 +18,9 @@
  */
 
 .w-result__header {}
+.w-result__paging-info{
+    margin: .5em 0;
+}
 .w-result__body {}
 
 /* ==========================================================================
@@ -27,6 +30,8 @@
 .w-result__table {
     border: .1em solid $app-accent-color01;
     border-collapse: collapse;
+    margin-top: 6em;
+    width:90%;
 }
 
 /* ==========================================================================
@@ -41,6 +46,21 @@
     padding: .2em 1em;
     color: $app-primary-white;
     cursor: pointer;
+}
+.w-result__header-cell > div {
+    // https://css-tricks.com/rotated-table-column-headers/
+    transform: /* Magic Numbers */
+    translate(-.5em, -.5em)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+    width: 1.1em;
+}
+.w-result__header-cell > div > span {
+    border-bottom: .1em solid $app-accent-color-bg01;
+    border-left: .1em solid $app-accent-color-bg01;
+    padding: .2em .6em .4em;
+    background: $app-accent-color01;
+    border-radius: .3em;
 }
 
 /*
@@ -106,6 +126,7 @@
 
 .w-result__pageNav {
     display: inline-block;
+    margin-left: .3em;
 }
 
 /* ==========================================================================

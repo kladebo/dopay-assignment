@@ -1,5 +1,5 @@
 /*global define: false, require:false */
-define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select', 'app/widget-button', 'app/widget-input'], function (print, helper, wCheckbox, wRadio, wSelect, wButton, wInput) {
+define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-input-radio', 'app/widget-select', 'app/widget-button', 'app/widget-input', 'app/widget-filter'], function (print, helper, wCheckbox, wRadio, wSelect, wButton, wInput, wFilter) {
     'use strict';
 
     var resultObj,
@@ -57,7 +57,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 lastPage = this.pageStart + this.pageViewView > this.viewdata.length,
                 startButton,
                 endButton,
-                viewRange = 7;
+                viewRange = 9;
 
 
             /*
@@ -206,6 +206,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             overlayBody = document.createElement('div'),
             button;
 
+
+
         frag.appendChild(resultWrapper);
         resultWrapper.id = 'wResult';
         resultWrapper.className = 'w-result';
@@ -238,7 +240,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         overlayBody.id = 'app__overlay-body';
         overlayBody.className = 'app__overlay-body';
 
-        document.body.appendChild(frag);
+        document.getElementById('main').appendChild(frag);
+
+
+
+
+        //document.body.appendChild(frag);
     };
 
 
@@ -313,6 +320,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         var tbody = document.createElement('tbody'),
             tr = document.createElement('tr'),
             th,
+            innerdiv,
+            innerspan,
+            
+            
             i, j,
 
             headers = resultObj.getHeaders();
@@ -341,8 +352,14 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         for (i = 0, j = headers.length; i < j; i += 1) {
             th = document.createElement('th');
             tr.appendChild(th);
+            
+            innerdiv = document.createElement('div');
+            th.appendChild(innerdiv);
+            
+            innerspan = document.createElement('span');
+            innerdiv.appendChild(innerspan);
 
-            th.textContent = headers[i].text;
+            innerspan.textContent = headers[i].text;
             th.setAttribute('data-id', headers[i].id);
 
             th.className = 'w-result__header-cell';
@@ -583,7 +600,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     });
 
                     print(field);
-                    
+
                     resultObj['list_' + field] = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), resultObj.getSetting(field).id));
                     //print (resultObj['list_' + field]);
                 }
@@ -834,8 +851,20 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 /* create the searchForm */
 
                 require(['app/search'], function (search) {
+
+                    /*
+                     *  Append the filter wrapper
+                     *      The filter wrapper holds the active buttons from the widgets
+                     */
+
+                    document.getElementById('main').appendChild(wFilter.init());
+
+
+
                     search.createForm();
+
                     initView();
+
                     search.submitTimeOut(1);
                 });
 

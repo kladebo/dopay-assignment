@@ -70,10 +70,12 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             wrapper = document.createElement('div'),
             formWrapper = document.createElement('div');
 
-        // print(resultObj);
+
         frag.appendChild(wrapper);
         wrapper.className = 'wrapper__form';
 
+        
+        
         /*
          *  Append the form wrapper
          *      The form wrapper holds the form elements
@@ -82,13 +84,6 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         wrapper.appendChild(formWrapper);
         formWrapper.id = 'w-form';
         formWrapper.className = 'w-form';
-
-        /*
-         *  Append the filter wrapper
-         *      The filter wrapper holds the active items from the widget-select
-         */
-
-        wrapper.appendChild(wFilter.init());
 
 
 
@@ -214,7 +209,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             multiple: true,
             id: 'teamID',
             label: 'teamID',
-            initial: 31,
+            initial: 11,
             options: function () {
                 return resultObj.list_teamID;
             },
@@ -268,14 +263,14 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
 
         /*
-         *  teamID selectbox
+         *  startingPos selectbox
          */
 
         startingPos = wSelect.createSelect({
             multiple: true,
             id: 'startingPos',
             label: 'startingPos',
-            initial: 1,
+            initial: 9,
             options: function () {
                 return resultObj.list_startingPos;
             },
