@@ -210,7 +210,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             multiple: true,
             id: 'teamID',
             label: 'teamID',
-            initial: 11,
+            //initial: 11,
             options: function () {
                 return resultObj.list_teamID;
             },
@@ -271,7 +271,7 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             multiple: true,
             id: 'startingPos',
             label: 'startingPos',
-            initial: 9,
+            //initial: 9,
             options: function () {
                 return resultObj.list_startingPos;
             },
