@@ -50,6 +50,10 @@
         line-height: 0;
     }
 }
+.w-button--clear {
+    background: $app-accent-color02;
+    color: $app-accent-color01;
+}
 .w-button--filter {
     display: none;
     font-size: .8em;

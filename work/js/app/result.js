@@ -16,6 +16,13 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
 
 
+    function hideOverlay() {
+        document.getElementById('app-overlay').classList.remove('app__overlay--active');
+        document.body.style.overflow = 'visible';
+        document.getElementById('app__overlay-body').innerHTML = '';
+    }
+
+
     /*
      *  Within this Object the loaded Json-data gets stored.
      *  This is also the place to keep all 'result' related variables
@@ -229,9 +236,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             label: '',
             css: 'w-button--close',
             callback: function () {
-                pageOverlay.classList.remove('app__overlay--active');
-                document.body.style.overflow = 'visible';
-                overlayBody.innerHTML = '';
+                hideOverlay();
             }
         });
         pageOverlay.appendChild(button);
@@ -322,8 +327,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             th,
             innerdiv,
             innerspan,
-            
-            
+
+
             i, j,
 
             headers = resultObj.getHeaders();
@@ -352,10 +357,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
         for (i = 0, j = headers.length; i < j; i += 1) {
             th = document.createElement('th');
             tr.appendChild(th);
-            
+
             innerdiv = document.createElement('div');
             th.appendChild(innerdiv);
-            
+
             innerspan = document.createElement('span');
             innerdiv.appendChild(innerspan);
 
@@ -367,6 +372,16 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 th.classList.add('w-result__header-cell--sort');
             }
         }
+
+
+        /*
+         *  Extra isEdited row
+         */
+
+        th = document.createElement('th');
+        tr.appendChild(th);
+        th.innerHTML = '&nbsp;';
+
 
 
         /* Attach click event on td for Sorting */
@@ -411,6 +426,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 break;
             }
 
+
+            player = collection[p];
+
+
             tr = document.createElement('tr');
             tbody.appendChild(tr);
 
@@ -428,13 +447,18 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             });
             td.appendChild(checkbox);
 
+
+
             for (q = 0, j = headers.length; q < j; q += 1) {
                 td = document.createElement('td');
                 tr.appendChild(td);
 
                 td.className = 'w-result__cell';
                 td.classList.add(td.className + '--' + headers[q].id);
-                player = collection[p];
+
+
+
+
                 if (player.hasOwnProperty([headers[q].id])) {
                     input = document.getElementById(headers[q].text);
 
@@ -448,9 +472,26 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     }
 
                     td.innerHTML = value;
+
+
                 } else {
                     td.textContent = '-';
                 }
+            }
+
+
+
+            /*
+             *  Extra isEdited row
+             */
+
+            td = document.createElement('td');
+            tr.appendChild(td);
+            td.className = 'w-result__cell--edited';
+            if (player.hasOwnProperty('edited')) {
+                td.textContent = 'edited';
+            } else {
+                td.innerHTML = '&nbsp;';
             }
         }
 
@@ -499,7 +540,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 overlayFooter = document.createElement('div'),
                 fieldSelect,
                 fieldEdit,
-                saveButton;
+                saveButton,
+                cancelButton,
+
+                fieldselectvalue;
 
             frag.appendChild(overlayHeader);
             overlayHeader.className = 'w-result__overlay-header';
@@ -512,6 +556,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             frag.appendChild(overlayFooter);
             overlayFooter.className = 'w-result__overlay-footer';
 
+
+
+            /*
+             *  field-select:
+             */
+
             fieldSelect = wSelect.createSelect({
                 id: 'admin-fieldselector',
                 label: 'edit field',
@@ -519,6 +569,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 css: 'w-select--small',
                 options: resultObj.list_allFields,
                 callback: function (active) {
+
+                    fieldselectvalue = active[0];
 
 
                     var cell = resultObj.getHeaders().filter(function (item) {
@@ -560,8 +612,12 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     }
                 }
             });
-
             overlayFooter.appendChild(fieldSelect);
+
+
+            /*
+             *  edit-field:
+             */
 
             fieldEdit = wInput.create({
                 id: 'admin-edit',
@@ -569,19 +625,37 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                 disabled: true,
                 css: 'w-input--small',
                 callback: function (value) {
-                    helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--active'), function (cellitem) {
-                        cellitem.textContent = value;
-                    });
+                    var r = resultObj.getSetting(fieldselectvalue).test,
+                        passed = r.test(value);
+
+                    //print(r);
+                    //print(passed);
+
+                    if (passed) {
+                        helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--active'), function (cellitem) {
+                            cellitem.textContent = value;
+                        });
+                    } else {
+                        helper.forEach(document.querySelectorAll('span.w-result__overlay-cell--active'), function (cellitem) {
+                            cellitem.textContent = cellitem.getAttribute('data-origvalue');
+                        });
+                    }
 
                 }
 
             });
-
             overlayFooter.appendChild(fieldEdit);
+
+
+
+            /*
+             *  admin-save-button:
+             */
 
             saveButton = wButton.create({
                 id: 'admin-save',
                 label: 'save',
+                css: 'w-button--small',
                 callback: function () {
                     var field,
                         value;
@@ -589,24 +663,112 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     value = document.getElementById('admin-edit').value;
 
 
-
                     helper.forEach(resultObj.selectedPlayers, function (playerid) {
-                        var player = resultObj.getPlayers().filter(function (item) {
-                            return item.dataId === playerid;
-                        })[0];
 
-                        player[resultObj.getSetting(field).id] = value;
+                        var row = document.getElementById('admin-player-' + playerid),
+                            player = resultObj.getPlayers().filter(function (item) {
+                                return item.dataId === playerid;
+                            })[0];
+
+
+                        /*
+                         *  Iterate over the rows to find all the changes
+                         */
+
+                        helper.forEach(row.querySelectorAll('span.w-result__overlay-cell'), function (cell) {
+
+                            var newValue = cell.textContent,
+                                datatype = resultObj.getSetting(cell.getAttribute('fieldid')).datatype;
+
+
+
+                            /*
+                             *  if not equal to last value
+                             */
+                            if (newValue !== cell.getAttribute('data-origvalue')) {
+                               
+                                
+                                /*
+                                 *  Last check for same type
+                                 */
+                                if (datatype === 'Number' || datatype === 'Boolean') {
+                                    newValue = parseInt(newValue, 10);
+                                }
+
+                                
+                                if (!player[cell.getAttribute('fieldid')] || typeof player[cell.getAttribute('fieldid')] === typeof newValue) {
+
+                                    print(typeof newValue + ' - ' + typeof cell.getAttribute('data-origvalue'));
+
+
+                                    player[cell.getAttribute('fieldid')] = newValue;
+
+                                    player.edited = true;
+                                } else {
+                                    console.warn('wrong type of new data: "' + newValue + '" (' + typeof newValue + ') doesn\'t match the old type: "' + player[cell.getAttribute('fieldid')] + '" (' + typeof player[cell.getAttribute('fieldid')] + ').\n Expected: ' + datatype);
+                                }
+                            }
+                        });
 
                     });
 
-                    print(field);
 
-                    resultObj['list_' + field] = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), resultObj.getSetting(field).id));
-                    //print (resultObj['list_' + field]);
+
+                    /*
+                     *  Hide the overlay after a submit
+                     */
+
+                    hideOverlay();
+
+
+
+                    /*
+                     *  Update the data-lists
+                     */
+
+                    helper.forEach(resultObj.settings, function (setting) {
+                        if (setting.hasOwnProperty('list')) {
+                            resultObj['list_' + setting.label] = helper.makeWidgetDataList(helper.makeUniqueList(resultObj.getPlayers(), setting.id));
+                        }
+                    });
+
+
+
+                    /*
+                     *  Submit the form
+                     */
+
+                    require(['app/search'], function (search) {
+                        search.submitTimeOut(1);
+                    });
                 }
             });
-
             overlayFooter.appendChild(saveButton);
+
+
+
+            /*
+             *  admin-cancel-button:
+             */
+
+            cancelButton = wButton.create({
+                id: 'admin-cancel',
+                label: 'cancel',
+                css: 'w-button--small',
+                callback: function () {
+                    var overlay = document.getElementById('app__overlay-body');
+                    overlay.innerHTML = '';
+                    overlay.appendChild(admin());
+                }
+
+            });
+            overlayFooter.appendChild(cancelButton);
+
+
+
+            /*
+             *  Add the selected players to the admin-view
+             */
 
             helper.forEach(resultObj.selectedPlayers, function (playerid, index) {
                 var player,
@@ -616,6 +778,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
 
                 overlayBody.appendChild(playerbox);
                 playerbox.className = 'w-result__overlay-row';
+                playerbox.id = 'admin-player-' + playerid;
 
                 player = resultObj.getPlayers().filter(function (item) {
                     return item.dataId === playerid;
@@ -628,6 +791,8 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                     content = player.hasOwnProperty(header.id) ? player[header.id] : '-';
                     field.className = 'w-result__overlay-cell w-result__overlay-cell--' + header.text;
                     field.textContent = content;
+                    field.setAttribute('fieldid', header.id);
+                    field.setAttribute('data-origvalue', content);
                 });
 
                 //playerbox.innerHTML = (index + 1) + ': ' + player.a + ' ' + player.b;
@@ -635,17 +800,30 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
             return frag;
         }
 
+
+
+        /*
+         *  The admin part of the table
+         */
+
         tbody.appendChild(tr);
         tbody.id = 'w-result__admin';
         tbody.className = 'w-result__admin';
         tr.appendChild(td);
 
-        td.setAttribute('colspan', resultObj.getHeaders().length + 1);
+        td.setAttribute('colspan', resultObj.getHeaders().length + 2);
         td.className = 'w-result__admin-cell';
+
+
+
+
+        /*
+         *  Button to activate the admin overlay
+         */
 
         button = wButton.create({
             id: 'admin_submit',
-            label: 'change',
+            label: 'edit selected players',
             css: 'w-button--small w-button--submit',
             callback: function () {
                 document.getElementById('app-overlay').classList.add('app__overlay--active');
@@ -713,26 +891,30 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         id: 'a',
                         search: 'wInput',
                         datatype: 'String',
-                        maxlength: 9
+                        maxlength: 9,
+                        test: /^\w{6,7}\d{2}$/
                     },
                     {
                         id: 'b',
                         search: 'wInput',
                         datatype: 'Number',
-                        maxlength: 4
+                        maxlength: 4,
+                        test: /^\d{4}$/
                     },
                     {
                         id: 'c',
                         search: 'wCheckbox',
                         datatype: 'Number',
                         maxlength: 1,
-                        list: true
+                        list: true,
+                        test: /^\d{1}$/
                     },
                     {
                         id: 'd',
                         search: 'wInput',
                         datatype: 'String',
-                        maxlength: 12
+                        maxlength: 12,
+                        test: /^[A-Z]{3}\d{9}$/
                     },
                     {
                         id: 'e',
@@ -740,13 +922,14 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         datatype: 'String',
                         maxlength: 3,
                         list: true,
-                        test: /[A-Z]/
+                        test: /^[A-Z]{3}$/
                     },
                     {
                         id: 'f',
                         search: 'wRadio',
                         datatype: 'String',
                         maxlength: 2,
+                        test: /^[A-Z]{2}$/,
                         list: true
                     },
                     {
@@ -754,6 +937,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         search: 'wRadio',
                         datatype: 'Boolean',
                         maxlength: 1,
+                        test: /^[01]{1}$/,
                         list: true
                     },
                     {
@@ -761,6 +945,7 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
                         search: 'wSelect',
                         datatype: 'Number',
                         maxlength: 2,
+                        test: /^\d{1,2}$/,
                         list: true
                     }
                 ];

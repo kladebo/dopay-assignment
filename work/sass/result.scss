@@ -18,7 +18,7 @@
  */
 
 .w-result__header {}
-.w-result__paging-info{
+.w-result__paging-info {
     margin: .5em 0;
 }
 .w-result__body {}
@@ -31,7 +31,7 @@
     border: .1em solid $app-accent-color01;
     border-collapse: collapse;
     margin-top: 6em;
-    width:90%;
+    width: 100%;
 }
 
 /* ==========================================================================
@@ -100,6 +100,14 @@
 .w-result__cell {
     padding: .6em 1em;
 }
+.w-result__cell--edited {
+    min-width: 3em;
+    color: $app-accent-color01;
+    font-size: .9em;
+}
+
+/* */
+
 .w-result__highlight {
     background: $app-accent-color02;
     font-style: normal;

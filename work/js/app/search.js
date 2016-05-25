@@ -74,8 +74,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
         frag.appendChild(wrapper);
         wrapper.className = 'wrapper__form';
 
-        
-        
+
+
         /*
          *  Append the form wrapper
          *      The form wrapper holds the form elements
@@ -116,7 +116,8 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
             teamID,
             startingPos,
             gameNum,
-            submitButton;
+            submitButton,
+            clearButton;
 
 
 
@@ -284,18 +285,34 @@ define(['app/print', 'app/helpers', 'app/result', 'app/widget-input', 'app/widge
 
 
         /*
-         *  submit-button
+         *  submit-button: does what is says
          */
 
         submitButton = wButton.create({
             label: 'Filter',
-            css: 'w-button--submit'
+            css: 'w-button--submit',
+            callback: function () {
+                submitForm();
+            }
         });
         frag.appendChild(submitButton);
 
-        submitButton.addEventListener('click', function () {
-            submitForm();
+
+
+        /*
+         *  clear-button: clears and submits the form to clear the result-view
+         */
+
+        clearButton = wButton.create({
+            label: 'Clear',
+            css: 'w-button--clear',
+            callback: function () {
+                formWrapper.innerHTML = '';
+                createForm();
+                submitTimeOut();
+            }
         });
+        frag.appendChild(clearButton);
 
 
 
