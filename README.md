@@ -29,7 +29,7 @@ Qua vormgeving zou er nog wel het een en ander kunnen gebeuren en niet alles sta
 
 ## installatie
 
-* Clone this repository `git clone https://github.com/kladebo/dopay-assignment`
+* Clone this repository `git clone https://github.com/kladebo/dopay-assignment.git`
 * Run `npm install`
 * Run `grunt`
 
