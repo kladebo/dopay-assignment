@@ -29,11 +29,12 @@ Qua vormgeving zou er nog wel het een en ander kunnen gebeuren en niet alles sta
 
 ## installatie
 
-* Clone this repository `git clone https://github.com/kladebo/dopay-assignment`
-* Run `npm install`
+* Clone the repository `git clone https://github.com/kladebo/dopay-assignment.git` into a (local) directory
+* Navigate to that directory and run `npm install`
 * Run `grunt`
 
 All files will be generated within the _www_ directory. Make this folder available for your webserver and start editing the data!
+
 
 Kind regards,
 
