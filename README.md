@@ -9,7 +9,8 @@ Voor deze test heb ik gebruikt gemaakt van de volgende technieken:
 1. require.js
 2. vanilla.js
 3. sass
-4. grunt (zie gruntfile.js)
+4. npm
+5. grunt (zie gruntfile.js)
 
 ## Aanpak
 
@@ -23,3 +24,11 @@ Qua vormgeving zou er nog wel het een en ander kunnen gebeuren en niet alles sta
 
 * De geschreven code is vooral te zien in de folder [/work/js/app/](/work/js/app/).
 * Voor de Sass bestanden klik dan naar [/work/sass/](/work/sass/).
+
+## installatie
+
+* Clone this repository `git clone https://github.com/kladebo/dopay-assignment`
+* Run `npm install`
+* Run `grunt`
+
+All files will be generated within the _www_ directory. Make this folder available for your webserver and start editing the data!
