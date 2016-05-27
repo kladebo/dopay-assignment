@@ -502,10 +502,10 @@ define(['app/print', 'app/helpers', 'app/widget-input-checkbox', 'app/widget-inp
          */
         helper.forEach(tbody.querySelectorAll('input.w-checkbox__checkbox'), function (checkbox) {
             checkbox.addEventListener('change', function () {
-                event.cancelBubble = true;
-                if (event.stopPropagation) {
-                    event.stopPropagation();
-                }
+//                event.cancelBubble = true;
+//                if (event.stopPropagation) {
+//                    event.stopPropagation();
+//                }
                 resultObj.toggleRow(checkbox.id);
             });
         });
