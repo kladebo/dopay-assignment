@@ -3,5 +3,6 @@ node_modules
 .sass-cache
 .lnk
 www/*/
+!www/img
 work/css/app/
 zooi
