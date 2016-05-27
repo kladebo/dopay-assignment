@@ -13,11 +13,13 @@ body {
     color: $app-text-color;
     font-family: 'Noto Sans';
     font-size: .9em;
-    background: linear-gradient(90deg, $app-accent-color-bg01, $app-accent-color-bg01 30%, white 31%, white);
-    background-repeat: repeat-y;
+    //background: linear-gradient(90deg, $app-accent-color-bg01, $app-accent-color-bg01 30%, white 31%, white);
+    //background-repeat: repeat-y;
 }
 .page {
     position: relative;
+    width: 980px;
+    margin: 0 auto;
 }
 .header {
     min-height: 60px;
