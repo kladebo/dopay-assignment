@@ -32,8 +32,8 @@ module.exports = function (grunt) {
                     include: ['main'],
                     paths: {
                         main: 'app/main',
-                        domReady: 'lib/domReady.min',
-                        promise: 'lib/es6-promise.min'
+                        domReady: 'empty:',
+                        promise: 'empty:'
                     },
                     out: "build/js/app/main.min.js"
                 }
